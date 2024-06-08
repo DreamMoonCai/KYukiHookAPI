@@ -6,6 +6,7 @@ repositories:
   gradle-plugin-portal:
     scope: PLUGINS
   google:
+  maven-local:
   maven-central:
   jit-pack:
   rovo89-xposed-api:
@@ -37,6 +38,12 @@ plugins:
     version: 0.27.0
 
 libraries:
+  com.highcapable.yukireflection:
+    api-kotlin:
+      version: 1.0.1
+  org.jetbrains.kotlin:
+    kotlin-reflect:
+      version: 1.9.22
   de.robv.android.xposed:
     api:
       version: 82
