@@ -6,9 +6,15 @@ repositories:
   gradle-plugin-portal:
     scope: PLUGINS
   google:
+  google-aliyun:
+      url: https://maven.aliyun.com/repository/google/
   maven-local:
   maven-central:
+  maven-central-aliyun:
+      url: https://maven.aliyun.com/repository/central/
   jit-pack:
+  jit-pack-aliyun:
+      url: https://maven.aliyun.com/repository/jcenter/
   rovo89-xposed-api:
     scope: LIBRARIES
     url: https://api.xposed.info/

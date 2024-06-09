@@ -2,6 +2,7 @@
 
 package com.dream.yukihookapi.hook.param
 
+import android.content.Context
 import android.content.Intent
 import android.opengl.Matrix
 import android.os.Bundle
@@ -11,7 +12,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.dream.yukihookapi.hook.core.KCallableHookCreator
+import com.dream.yukihookapi.hook.entity.KYukiBaseHooker
 import com.dream.yukihookapi.hook.factory.kotlin
+import com.dream.yukihookapi.hook.factory.yuki
 import com.dream.yukireflection.build.KTypeBuild
 import com.dream.yukireflection.factory.*
 import com.dream.yukireflection.finder.base.KBaseFinder
@@ -26,11 +29,16 @@ import com.dream.yukireflection.type.kotlin.StringArrayKClass
 import com.highcapable.yukihookapi.hook.core.YukiMemberHookCreator.MemberHookCreator.HookCallback
 import com.highcapable.yukihookapi.hook.core.api.priority.YukiHookPriority
 import com.highcapable.yukihookapi.hook.core.finder.base.BaseFinder
+import com.highcapable.yukihookapi.hook.entity.YukiBaseHooker
+import com.highcapable.yukihookapi.hook.log.YLog
 import com.highcapable.yukihookapi.hook.param.PackageParam
 import com.highcapable.yukihookapi.hook.param.wrapper.PackageParamWrapper
 import com.highcapable.yukihookapi.hook.type.java.IntArrayType
 import com.highcapable.yukihookapi.hook.type.java.IntType
 import com.highcapable.yukihookapi.hook.type.java.StringArrayClass
+import com.highcapable.yukihookapi.hook.xposed.bridge.YukiXposedModule
+import com.highcapable.yukihookapi.hook.xposed.bridge.type.HookEntryType
+import com.highcapable.yukihookapi.hook.xposed.parasitic.AppParasitics
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 
@@ -54,6 +62,187 @@ open class KPackageParam internal constructor(wrapper: PackageParamWrapper? = nu
          * 这通常在反编译的代码引用中出现的异常，通常忽略不会影响编译
          */
         const val MISSING_DEPENDENCY_SUPERCLASS = "MISSING_DEPENDENCY_SUPERCLASS"
+    }
+
+    /**
+     * 装载并 Hook 指定包名的 APP
+     *
+     * 若要装载 APP Zygote 事件 - 请使用 [loadZygote]
+     *
+     * 若要 Hook 系统框架 - 请使用 [loadSystem]
+     * @param name 包名
+     * @param initiate 方法体
+     */
+    inline fun loadAppKotlin(name: String, initiate: KPackageParam.() -> Unit) {
+        loadApp(name){initiate()}
+    }
+
+    /**
+     * 装载并 Hook 指定包名的 APP
+     *
+     * 若要装载 APP Zygote 事件 - 请使用 [loadZygote]
+     *
+     * 若要 Hook 系统框架 - 请使用 [loadSystem]
+     * @param name 包名数组
+     * @param initiate 方法体
+     */
+    inline fun loadAppKotlin(vararg name: String, initiate: KPackageParam.() -> Unit) {
+        loadApp(*name){initiate()}
+    }
+
+    /**
+     * 装载并 Hook 指定包名的 APP
+     *
+     * 若要装载 APP Zygote 事件 - 请使用 [loadZygote]
+     *
+     * 若要 Hook 系统框架 - 请使用 [loadSystem]
+     * @param name 包名
+     * @param hooker Hook 子类
+     */
+    fun loadApp(name: String, hooker: KYukiBaseHooker) {
+        loadApp(name, hooker.yuki)
+    }
+
+    /**
+     * 装载并 Hook 指定包名的 APP
+     *
+     * 若要装载 APP Zygote 事件 - 请使用 [loadZygote]
+     *
+     * 若要 Hook 系统框架 - 请使用 [loadSystem]
+     * @param name 包名 - 不填将过滤除了 [loadZygote] 事件外的全部 APP
+     * @param hooker Hook 子类数组
+     */
+    fun loadApp(name: String, vararg hooker: KYukiBaseHooker) {
+        loadApp(name, *hooker.yuki)
+    }
+
+    /**
+     * 装载并 Hook 全部 APP
+     *
+     * 若要装载 APP Zygote 事件 - 请使用 [loadZygote]
+     *
+     * 若要 Hook 系统框架 - 请使用 [loadSystem]
+     * @param isExcludeSelf 是否排除模块自身 - 默认否 - 启用后被 Hook 的 APP 将不包含当前模块自身
+     * @param initiate 方法体
+     */
+    inline fun loadAppKotlin(isExcludeSelf: Boolean = false, initiate: KPackageParam.() -> Unit) {
+        loadApp(isExcludeSelf){initiate()}
+    }
+
+    /**
+     * 装载并 Hook 全部 APP
+     *
+     * 若要装载 APP Zygote 事件 - 请使用 [loadZygote]
+     *
+     * 若要 Hook 系统框架 - 请使用 [loadSystem]
+     * @param isExcludeSelf 是否排除模块自身 - 默认否 - 启用后被 Hook 的 APP 将不包含当前模块自身
+     * @param hooker Hook 子类
+     */
+    fun loadApp(isExcludeSelf: Boolean = false, hooker: KYukiBaseHooker) {
+        loadApp(isExcludeSelf,hooker.yuki)
+    }
+
+    /**
+     * 装载并 Hook 全部 APP
+     *
+     * 若要装载 APP Zygote 事件 - 请使用 [loadZygote]
+     *
+     * 若要 Hook 系统框架 - 请使用 [loadSystem]
+     * @param isExcludeSelf 是否排除模块自身 - 默认否 - 启用后被 Hook 的 APP 将不包含当前模块自身
+     * @param hooker Hook 子类数组
+     */
+    fun loadApp(isExcludeSelf: Boolean = false, vararg hooker: KYukiBaseHooker) {
+        loadApp(isExcludeSelf,*hooker.yuki)
+    }
+
+    /**
+     * 装载并 Hook 系统框架
+     * @param initiate 方法体
+     */
+    inline fun loadSystemKotlin(initiate: KPackageParam.() -> Unit) = loadSystem {initiate()}
+
+    /**
+     * 装载并 Hook 系统框架
+     * @param hooker Hook 子类
+     */
+    fun loadSystem(hooker: KYukiBaseHooker) = loadSystem(hooker.yuki)
+
+    /**
+     * 装载并 Hook 系统框架
+     * @param hooker Hook 子类数组
+     */
+    fun loadSystem(vararg hooker: KYukiBaseHooker) {
+        loadSystem(*hooker.yuki)
+    }
+
+    /**
+     * 装载 APP Zygote 事件
+     * @param initiate 方法体
+     */
+    inline fun loadZygoteKotlin(initiate: KPackageParam.() -> Unit) {
+        loadZygote {initiate()}
+    }
+
+    /**
+     * 装载 APP Zygote 事件
+     * @param hooker Hook 子类
+     */
+    fun loadZygote(hooker: KYukiBaseHooker) {
+        loadZygote(hooker.yuki)
+    }
+
+    /**
+     * 装载 APP Zygote 事件
+     * @param hooker Hook 子类数组
+     */
+    fun loadZygote(vararg hooker: KYukiBaseHooker) {
+        loadZygote(*hooker.yuki)
+    }
+
+    /**
+     * 装载并 Hook APP 的指定进程
+     * @param name 进程名 - 若要指定主进程可填写 [mainProcessName] - 效果与 [isFirstApplication] 一致
+     * @param initiate 方法体
+     */
+    inline fun withProcessKotlin(name: String, initiate: KPackageParam.() -> Unit) {
+        withProcess(name){initiate()}
+    }
+
+    /**
+     * 装载并 Hook APP 的指定进程
+     * @param name 进程名数组 - 若要指定主进程可填写 [mainProcessName] - 效果与 [isFirstApplication] 一致
+     * @param initiate 方法体
+     */
+    inline fun withProcessKotlin(vararg name: String, initiate: KPackageParam.() -> Unit) {
+        withProcess(*name){initiate()}
+    }
+
+    /**
+     * 装载并 Hook APP 的指定进程
+     * @param name 进程名 - 若要指定主进程可填写 [mainProcessName] - 效果与 [isFirstApplication] 一致
+     * @param hooker Hook 子类
+     */
+    fun withProcess(name: String, hooker: KYukiBaseHooker) {
+        withProcess(name,hooker.yuki)
+    }
+
+    /**
+     * 装载并 Hook APP 的指定进程
+     * @param name 进程名 - 若要指定主进程可填写 [mainProcessName] - 效果与 [isFirstApplication] 一致
+     * @param hooker Hook 子类数组
+     */
+    fun withProcess(name: String, vararg hooker: KYukiBaseHooker) {
+        withProcess(name,*hooker.yuki)
+    }
+
+    /**
+     * 装载 Hook 子类
+     *
+     * 你可以在 Hooker 中继续装载 Hooker
+     * @param hooker Hook 子类
+     */
+    fun loadHooker(hooker: KYukiBaseHooker) {
+        loadHooker(hooker.yuki)
     }
 
     /**
@@ -307,6 +496,19 @@ open class KPackageParam internal constructor(wrapper: PackageParamWrapper? = nu
                 superClass()
             }.hook()){
                 onActivityResult(args(0).cast()!!, args(1).cast()!!, args(2).cast())
+            }
+
+            /**
+             * 针对于 attachBaseContext 查找的Hook
+             *
+             * @param attachBaseContext - Hook 所插入的代码
+             */
+            fun attachBaseContext(attachBaseContext: KHookParam.(context: Context) -> Unit) = Result(thisRefKClass.function {
+                name = "attachBaseContext"
+                param(ContextKClass)
+                superClass()
+            }.hook()){
+                attachBaseContext(args(0).cast()!!)
             }
         }
 
