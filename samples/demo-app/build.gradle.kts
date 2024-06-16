@@ -1,7 +1,6 @@
 plugins {
     autowire(libs.plugins.android.application)
     autowire(libs.plugins.kotlin.android)
-    autowire(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -42,7 +41,6 @@ android {
 }
 
 dependencies {
-    implementation(org.jetbrains.compose.runtime.runtime)
     implementation(androidx.core.core.ktx)
     implementation(androidx.appcompat.appcompat)
     implementation(androidx.lifecycle.lifecycle.viewmodel.ktx)

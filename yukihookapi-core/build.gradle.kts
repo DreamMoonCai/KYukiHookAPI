@@ -3,7 +3,6 @@ import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 plugins {
     autowire(libs.plugins.android.library)
     autowire(libs.plugins.kotlin.android)
-    autowire(libs.plugins.kotlin.compose)
     autowire(libs.plugins.maven.publish)
 }
 
@@ -42,7 +41,6 @@ android {
 dependencies {
     compileOnly(de.robv.android.xposed.api)
     compileOnly(projects.yukihookapiStub)
-    implementation(org.jetbrains.compose.runtime.runtime)
     implementation(com.github.tiann.freeReflection)
     implementation(androidx.core.core.ktx)
     implementation(androidx.appcompat.appcompat)

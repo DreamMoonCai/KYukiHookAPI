@@ -2,7 +2,6 @@ plugins {
     autowire(libs.plugins.android.application)
     autowire(libs.plugins.kotlin.android)
     autowire(libs.plugins.kotlin.ksp)
-    autowire(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -44,7 +43,6 @@ android {
 }
 
 dependencies {
-    implementation(org.jetbrains.compose.runtime.runtime)
     compileOnly(de.robv.android.xposed.api)
     implementation(projects.yukihookapiCore)
     ksp(projects.yukihookapiKspXposed)
