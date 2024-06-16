@@ -1,6 +1,7 @@
 plugins {
     autowire(libs.plugins.android.library)
     autowire(libs.plugins.kotlin.android)
+    autowire(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -34,4 +35,5 @@ android {
 
 dependencies {
     implementation(androidx.annotation.annotation)
+    implementation(org.jetbrains.compose.runtime.runtime)
 }
