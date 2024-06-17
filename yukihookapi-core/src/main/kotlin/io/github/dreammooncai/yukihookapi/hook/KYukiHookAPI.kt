@@ -1,14 +1,12 @@
-package com.dream.yukihookapi.hook
+package io.github.dreammooncai.yukihookapi.hook
 
 import android.app.Application
 import android.content.Context
-import com.dream.yukihookapi.hook.entity.KYukiBaseHooker
-import com.dream.yukihookapi.hook.factory.kotlin
-import com.dream.yukihookapi.hook.factory.yuki
-import com.dream.yukihookapi.hook.param.KPackageParam
+import io.github.dreammooncai.yukihookapi.hook.entity.KYukiBaseHooker
+import io.github.dreammooncai.yukihookapi.hook.factory.kotlin
+import io.github.dreammooncai.yukihookapi.hook.factory.yuki
+import io.github.dreammooncai.yukihookapi.hook.param.KPackageParam
 import com.highcapable.yukihookapi.YukiHookAPI
-import com.highcapable.yukihookapi.hook.entity.YukiBaseHooker
-import com.highcapable.yukihookapi.hook.param.PackageParam
 
 /**
  * [KYukiHookAPI] 的装载调用类

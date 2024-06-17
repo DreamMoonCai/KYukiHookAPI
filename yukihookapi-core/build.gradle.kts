@@ -46,7 +46,7 @@ dependencies {
     implementation(androidx.appcompat.appcompat)
     implementation(androidx.preference.preference.ktx)
     implementation(org.jetbrains.kotlin.kotlin.reflect)
-    implementation(com.highcapable.yukireflection.api.kotlin)
+    implementation(io.github.dreammooncai.yukireflection.api.kotlin)
 }
 
 mavenPublishing {

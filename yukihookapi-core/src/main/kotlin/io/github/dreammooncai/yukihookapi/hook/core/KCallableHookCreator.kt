@@ -1,20 +1,12 @@
 @file:Suppress("NON_PUBLIC_CALL_FROM_PUBLIC_INLINE")
-package com.dream.yukihookapi.hook.core
+package io.github.dreammooncai.yukihookapi.hook.core
 
-import com.dream.yukihookapi.hook.factory.kotlin
-import com.dream.yukihookapi.hook.param.KHookParam
-import com.dream.yukireflection.factory.kotlin
-import com.highcapable.yukihookapi.hook.core.YukiMemberHookCreator.HookMode
+import io.github.dreammooncai.yukihookapi.hook.factory.kotlin
+import io.github.dreammooncai.yukihookapi.hook.param.KHookParam
+import io.github.dreammooncai.yukireflection.factory.kotlin
 import com.highcapable.yukihookapi.hook.core.YukiMemberHookCreator.MemberHookCreator
 import com.highcapable.yukihookapi.hook.core.YukiMemberHookCreator.MemberHookCreator.HookCallback
-import com.highcapable.yukihookapi.hook.core.YukiMemberHookCreator.MemberHookCreator.Result
 import com.highcapable.yukihookapi.hook.core.YukiMemberHookCreator.MemberHookCreator.Result as MemberResult
-import com.highcapable.yukihookapi.hook.core.annotation.LegacyHookApi
-import com.highcapable.yukihookapi.hook.core.api.priority.YukiHookPriority
-import com.highcapable.yukihookapi.hook.core.api.proxy.YukiMemberHook
-import com.highcapable.yukihookapi.hook.log.YLog
-import com.highcapable.yukihookapi.hook.param.HookParam
-import com.highcapable.yukihookapi.hook.utils.factory.RandomSeed
 import kotlin.reflect.*
 
 /**

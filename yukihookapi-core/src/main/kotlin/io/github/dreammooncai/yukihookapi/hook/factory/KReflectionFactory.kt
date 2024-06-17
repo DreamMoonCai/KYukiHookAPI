@@ -1,11 +1,11 @@
 @file:Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE", "NON_PUBLIC_CALL_FROM_PUBLIC_INLINE")
-package com.dream.yukihookapi.hook.factory
+package io.github.dreammooncai.yukihookapi.hook.factory
 
-import com.dream.yukihookapi.hook.KYukiHookAPI
-import com.dream.yukihookapi.hook.core.KCallableHookCreator
-import com.dream.yukihookapi.hook.entity.KYukiBaseHooker
-import com.dream.yukihookapi.hook.param.KHookParam
-import com.dream.yukihookapi.hook.param.KPackageParam
+import io.github.dreammooncai.yukihookapi.hook.KYukiHookAPI
+import io.github.dreammooncai.yukihookapi.hook.core.KCallableHookCreator
+import io.github.dreammooncai.yukihookapi.hook.entity.KYukiBaseHooker
+import io.github.dreammooncai.yukihookapi.hook.param.KHookParam
+import io.github.dreammooncai.yukihookapi.hook.param.KPackageParam
 import com.highcapable.yukihookapi.hook.core.YukiMemberHookCreator
 import com.highcapable.yukihookapi.hook.entity.YukiBaseHooker
 import com.highcapable.yukihookapi.hook.param.HookParam

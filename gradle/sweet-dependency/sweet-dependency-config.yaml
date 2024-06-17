@@ -44,7 +44,7 @@ plugins:
     version: 0.28.0
 
 libraries:
-  com.highcapable.yukireflection:
+  io.github.dreammooncai.yukireflection:
     api-kotlin:
       version: 1.0.1
   org.jetbrains.kotlin:

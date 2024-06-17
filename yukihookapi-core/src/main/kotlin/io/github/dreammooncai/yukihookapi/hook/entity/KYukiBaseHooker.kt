@@ -1,10 +1,9 @@
-package com.dream.yukihookapi.hook.entity
+package io.github.dreammooncai.yukihookapi.hook.entity
 
-import com.dream.yukihookapi.hook.param.KPackageParam
+import io.github.dreammooncai.yukihookapi.hook.param.KPackageParam
 import com.highcapable.yukihookapi.YukiHookAPI
 import com.highcapable.yukihookapi.annotation.xposed.InjectYukiHookWithXposed
 import com.highcapable.yukihookapi.hook.log.YLog
-import com.highcapable.yukihookapi.hook.param.PackageParam
 import com.highcapable.yukihookapi.hook.entity.YukiBaseHooker
 
 /**

@@ -1,44 +1,33 @@
 @file:Suppress("NOTHING_TO_INLINE", "NON_PUBLIC_CALL_FROM_PUBLIC_INLINE")
 
-package com.dream.yukihookapi.hook.param
+package io.github.dreammooncai.yukihookapi.hook.param
 
 import android.content.Context
 import android.content.Intent
-import android.opengl.Matrix
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import com.dream.yukihookapi.hook.core.KCallableHookCreator
-import com.dream.yukihookapi.hook.entity.KYukiBaseHooker
-import com.dream.yukihookapi.hook.factory.kotlin
-import com.dream.yukihookapi.hook.factory.yuki
-import com.dream.yukireflection.build.KTypeBuild
-import com.dream.yukireflection.factory.*
-import com.dream.yukireflection.finder.base.KBaseFinder
-import com.dream.yukireflection.finder.callable.KConstructorFinder
-import com.dream.yukireflection.finder.callable.KFunctionFinder
-import com.dream.yukireflection.finder.callable.KPropertyFinder
-import com.dream.yukireflection.finder.classes.KClassFinder
-import com.dream.yukireflection.type.android.*
-import com.dream.yukireflection.type.kotlin.IntArrayKType
-import com.dream.yukireflection.type.kotlin.IntKType
-import com.dream.yukireflection.type.kotlin.StringArrayKClass
+import io.github.dreammooncai.yukihookapi.hook.core.KCallableHookCreator
+import io.github.dreammooncai.yukihookapi.hook.entity.KYukiBaseHooker
+import io.github.dreammooncai.yukihookapi.hook.factory.kotlin
+import io.github.dreammooncai.yukihookapi.hook.factory.yuki
+import io.github.dreammooncai.yukireflection.build.KTypeBuild
+import io.github.dreammooncai.yukireflection.factory.*
+import io.github.dreammooncai.yukireflection.finder.base.KBaseFinder
+import io.github.dreammooncai.yukireflection.finder.callable.KConstructorFinder
+import io.github.dreammooncai.yukireflection.finder.callable.KFunctionFinder
+import io.github.dreammooncai.yukireflection.finder.callable.KPropertyFinder
+import io.github.dreammooncai.yukireflection.finder.classes.KClassFinder
+import io.github.dreammooncai.yukireflection.type.android.*
+import io.github.dreammooncai.yukireflection.type.kotlin.IntArrayKType
+import io.github.dreammooncai.yukireflection.type.kotlin.IntKType
+import io.github.dreammooncai.yukireflection.type.kotlin.StringArrayKClass
 import com.highcapable.yukihookapi.hook.core.YukiMemberHookCreator.MemberHookCreator.HookCallback
 import com.highcapable.yukihookapi.hook.core.api.priority.YukiHookPriority
 import com.highcapable.yukihookapi.hook.core.finder.base.BaseFinder
-import com.highcapable.yukihookapi.hook.entity.YukiBaseHooker
-import com.highcapable.yukihookapi.hook.log.YLog
 import com.highcapable.yukihookapi.hook.param.PackageParam
 import com.highcapable.yukihookapi.hook.param.wrapper.PackageParamWrapper
-import com.highcapable.yukihookapi.hook.type.java.IntArrayType
-import com.highcapable.yukihookapi.hook.type.java.IntType
-import com.highcapable.yukihookapi.hook.type.java.StringArrayClass
-import com.highcapable.yukihookapi.hook.xposed.bridge.YukiXposedModule
-import com.highcapable.yukihookapi.hook.xposed.bridge.type.HookEntryType
-import com.highcapable.yukihookapi.hook.xposed.parasitic.AppParasitics
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 
@@ -406,7 +395,7 @@ open class KPackageParam internal constructor(wrapper: PackageParamWrapper? = nu
      * @param fixed 方法体
      * @receiver 被Hook的类
      */
-    inline fun KClass<*>.appNormalHookTemplate(fixed:FixedHookTemplate.AppNormal.() -> Unit) = FixedHookTemplate(this).AppNormal().apply(fixed)
+    inline fun KClass<*>.appNormalHookTemplate(fixed: FixedHookTemplate.AppNormal.() -> Unit) = FixedHookTemplate(this).AppNormal().apply(fixed)
 
     /**
      * 固定 Hook 模板
@@ -518,7 +507,7 @@ open class KPackageParam internal constructor(wrapper: PackageParamWrapper? = nu
          * @property result 可执行元素目标Hook实例
          * @property hook 所执行的Hook
          */
-        inner class Result(private val result:KCallableHookCreator,private val hook: KHookParam.() -> Unit) {
+        inner class Result(private val result: KCallableHookCreator, private val hook: KHookParam.() -> Unit) {
             /**
              * 在 [KCallable] 执行完成后 Hook
              *
