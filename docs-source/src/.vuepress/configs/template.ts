@@ -102,8 +102,8 @@ export const configs = {
         port: 9000
     },
     website: {
-        base: '/YukiHookAPI/',
-        icon: '/YukiHookAPI/images/logo.png',
+        base: '/KYukiHookAPI/',
+        icon: '/KYukiHookAPI/images/logo.png',
         logo: '/images/logo.png',
         title: 'Yuki Hook API',
         locales: {
@@ -118,7 +118,7 @@ export const configs = {
         }
     },
     github: {
-        repo: 'https://github.com/HighCapable/YukiHookAPI',
+        repo: 'https://github.com/DreamMoonCai/KYukiHookAPI',
         branch: 'master',
         dir: 'docs-source/src'
     }
