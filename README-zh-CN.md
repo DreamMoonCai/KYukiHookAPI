@@ -6,7 +6,8 @@
 [![Telegram](https://img.shields.io/badge/discussion%20dev-Telegram-blue.svg?logo=telegram)](https://t.me/HighCapable_Dev)
 [![QQ](https://img.shields.io/badge/discussion%20dev-QQ-blue.svg?logo=tencent-qq&logoColor=red)](https://qm.qq.com/cgi-bin/qm/qr?k=Pnsc5RY6N2mBKFjOLPiYldbAbprAU3V7&jump_from=webapi&authKey=X5EsOVzLXt1dRunge8ryTxDRrh9/IiW1Pua75eDLh9RE3KXE+bwXIYF5cWri/9lf)
 
-<img src="img-src/icon.png" width = "100" height = "100" alt="LOGO"/>   <img src="img-src/YukiHookApi-icon.png" width = "100" height = "100" alt="LOGO"/>
+<img src="img-src/icon.png" width = "100" height = "100" alt="LOGO"/>  
+<img src="img-src/YukiHookApi-icon.png" width = "100" height = "100" alt="LOGO"/>
 
 ⛱️ 一个使用 Kotlin 构建的高效 Hook API 与 Xposed 模块解决方案。并且在此基础上进行 Kotlin 的完美扩展。
 
