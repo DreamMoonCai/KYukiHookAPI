@@ -65,7 +65,7 @@ libraries:
       version: 82
       repositories:
         rovo89-xposed-api
-  com.highcapable.yukihookapi:
+  io.github.dreammooncai.yukihookapi:
     api:
       version: +
     # 作为 Xposed 模块使用务必添加，其它情况可选
@@ -95,11 +95,11 @@ plugins {
 ```kotlin
 dependencies {
     // 基础依赖
-    implementation(com.highcapable.yukihookapi.api)
+    implementation(io.github.dreammooncai.yukihookapi.api)
     // 作为 Xposed 模块使用务必添加，其它情况可选
     compileOnly(de.robv.android.xposed.api)
     // 作为 Xposed 模块使用务必添加，其它情况可选
-    ksp(com.highcapable.yukihookapi.ksp.xposed)
+    ksp(io.github.dreammooncai.yukihookapi.ksp.xposed)
 }
 ```
 
@@ -160,11 +160,11 @@ plugins {
 ```kotlin
 dependencies {
     // 基础依赖
-    implementation("com.highcapable.yukihookapi:api:<yuki-version>")
+    implementation("io.github.dreammooncai.yukihookapi:api:<yuki-version>")
     // 作为 Xposed 模块使用务必添加，其它情况可选
     compileOnly("de.robv.android.xposed:api:82")
     // 作为 Xposed 模块使用务必添加，其它情况可选
-    ksp("com.highcapable.yukihookapi:ksp-xposed:<yuki-version>")
+    ksp("io.github.dreammooncai.yukihookapi:ksp-xposed:<yuki-version>")
 }
 ```
 
@@ -173,11 +173,11 @@ dependencies {
 ```groovy
 dependencies {
     // 基础依赖
-    implementation 'com.highcapable.yukihookapi:api:<yuki-version>'
+    implementation 'io.github.dreammooncai.yukihookapi:api:<yuki-version>'
     // 作为 Xposed 模块使用务必添加，其它情况可选
     compileOnly 'de.robv.android.xposed:api:82'
     // 作为 Xposed 模块使用务必添加，其它情况可选
-    ksp 'com.highcapable.yukihookapi:ksp-xposed:<yuki-version>'
+    ksp 'io.github.dreammooncai.yukihookapi:ksp-xposed:<yuki-version>'
 }
 ```
 

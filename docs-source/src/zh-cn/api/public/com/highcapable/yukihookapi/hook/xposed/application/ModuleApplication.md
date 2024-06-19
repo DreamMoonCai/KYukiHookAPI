@@ -64,9 +64,9 @@ class MyApplication: ModuleApplication() {
 > 示例如下
 
 ```xml
+
 <application
-    android:name="com.highcapable.yukihookapi.hook.xposed.application.ModuleApplication"
-    ...>
+    android:name="io.github.dreammooncai.yukihookapi.kt.xposed.application.ModuleApplication"...>
 ```
 
 ## appContext <span class="symbol">- field</span>

@@ -4,7 +4,7 @@
 
 ## Dependency Configs
 
-You just need to integrate the `com.highcapable.yukihookapi:api` dependency.
+You just need to integrate the `io.github.dreammooncai.yukihookapi:api` dependency.
 
 Then please integrate the `Hook Framework` dependencies used by your target.
 

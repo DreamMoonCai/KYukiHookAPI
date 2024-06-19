@@ -6,7 +6,7 @@
 
 > 作为 Xposed 模块，`YukiHookAPI` 提供了一个自动处理程序。
 
-你需要在你的构建脚本中集成 `com.highcapable.yukihookapi:ksp-xposed` 依赖的最新版本。
+你需要在你的构建脚本中集成 `io.github.dreammooncai.yukihookapi:ksp-xposed` 依赖的最新版本。
 
 ## 自定义处理程序
 

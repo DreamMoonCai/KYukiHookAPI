@@ -1,14 +1,14 @@
-# Yuki Hook API
+# KYuki Hook API
 
-[![GitHub license](https://img.shields.io/github/license/HighCapable/YukiHookAPI?color=blue)](https://github.com/HighCapable/YukiHookAPI/blob/master/LICENSE)
-[![GitHub release](https://img.shields.io/github/v/release/HighCapable/YukiHookAPI?display_name=release&logo=github&color=green)](https://github.com/HighCapable/YukiHookAPI/releases)
+[![GitHub license](https://img.shields.io/github/license/DreamMoonCai/KYukiHookAPI?color=blue)](https://github.com/DreamMoonCai/KYukiHookAPI/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/DreamMoonCai/KYukiHookAPI?display_name=release&logo=github&color=green)](https://github.com/DreamMoonCai/KYukiHookAPI/releases)
 [![Telegram](https://img.shields.io/badge/discussion-Telegram-blue.svg?logo=telegram)](https://t.me/YukiHookAPI)
 [![Telegram](https://img.shields.io/badge/discussion%20dev-Telegram-blue.svg?logo=telegram)](https://t.me/HighCapable_Dev)
 [![QQ](https://img.shields.io/badge/discussion%20dev-QQ-blue.svg?logo=tencent-qq&logoColor=red)](https://qm.qq.com/cgi-bin/qm/qr?k=Pnsc5RY6N2mBKFjOLPiYldbAbprAU3V7&jump_from=webapi&authKey=X5EsOVzLXt1dRunge8ryTxDRrh9/IiW1Pua75eDLh9RE3KXE+bwXIYF5cWri/9lf)
 
 <img src="img-src/icon.png" width = "100" height = "100" alt="LOGO"/>
 
-⛱️ An efficient Hook API and Xposed Module solution built in Kotlin.
+⛱️ An efficient Hook API and Xposed Module solution built in Kotlin. Fully attach Kotlin high-order reflections.
 
 English | [简体中文](README-zh-CN.md)
 
@@ -28,38 +28,19 @@ Formerly the Innocent Xposed API used in [Development Learning Project](https://
 
 ## Get Started
 
-[Click here](https://highcapable.github.io/YukiHookAPI/en/) go to the documentation page for more detailed tutorials and content.
+[Click here](https://dreammooncai.github.io/KYukiHookAPI/en/) go to the documentation page for more detailed tutorials and content.
 
-For supportive related information, you can check it directly [click here](https://highcapable.github.io/YukiHookAPI/en/guide/supportive).
+For supportive related information, you can check it directly [click here](https://dreammooncai.github.io/KYukiHookAPI/en/guide/supportive).
 
 ## Cooperations
 
-The following are projects that have collaborated and are using `YukiHookAPI`.
+The following are projects that have collaborated and are using `KYukiHookAPI`.
 
-| Repository                                                                      | Developer                                       |
-|---------------------------------------------------------------------------------|-------------------------------------------------|
-| [TSBattery](https://github.com/fankes/TSBattery)                                | [fankesyooni](https://github.com/fankes)        |
-| [MIUI 原生通知图标](https://github.com/fankes/MIUINativeNotifyIcon)                   | [fankesyooni](https://github.com/fankes)        |
-| [ColorOS 通知图标增强](https://github.com/fankes/ColorOSNotifyIcon)                   | [fankesyooni](https://github.com/fankes)        |
-| [自由屏幕旋转](https://github.com/Xposed-Modules-Repo/com.fankes.forcerotate)         | [fankesyooni](https://github.com/fankes)        |
-| [拒绝强制亮度](https://github.com/Xposed-Modules-Repo/com.fankes.refusebrightness)    | [fankesyooni](https://github.com/fankes)        |
-| [AppErrorsTracking](https://github.com/KitsunePie/AppErrorsTracking)            | [fankesyooni](https://github.com/fankes)        |
-| [Enable WebView Debugging](https://github.com/WankkoRee/EnableWebViewDebugging) | [WankkoRee](https://github.com/WankkoRee)       |
-| [Fuck MIUI Gesture](https://github.com/HCGStudio/FuckMIUIGesture)               | [mahoshojoHCG](https://github.com/mahoshojoHCG) |
-| [MIUI遮罩进化](https://github.com/GSWXXN/RestoreSplashScreen)                       | [GSWXXN](https://github.com/GSWXXN)             |
-| [Color OS Installer Plus](https://github.com/NextAlone/ColorOSInstallerPlus)    | [NextAlone](https://github.com/NextAlone)       |
-| [Auto NFC](https://github.com/GSWXXN/AutoNFC)                                   | [GSWXXN](https://github.com/GSWXXN)             |
-| [不要竖屏](https://github.com/WankkoRee/Portrait2Landscape)                         | [WankkoRee](https://github.com/WankkoRee)       |
-| [QDReadHook](https://github.com/xihan123/QDReadHook)                            | [xihan123](https://github.com/xihan123)         |
-| [HXReadHook](https://github.com/xihan123/HXReadHook)                            | [xihan123](https://github.com/xihan123)         |
-| [WxRecordRead](https://github.com/pwh-pwh/wxrecordread)                         | [Coderpwh](https://github.com/pwh-pwh)          |
-| [FuckShake](https://github.com/pwh-pwh/fuck_shake)                              | [Coderpwh](https://github.com/pwh-pwh)          |
-| [MIUI更新进化](https://miup.utssg.xyz)                                              | [ZQDesigned](https://github.com/ZQDesigned)     |
-| [MIUI录屏进化](https://www.coolapk.com/apk/UTSSG.ZQDesigned.miuirecordercracker)    | [ZQDesigned](https://github.com/ZQDesigned)     |
-| [Fuck AD](https://github.com/hujiayucc/Fuck-AD)                                 | [hujiayucc](https://github.com/hujiayucc)       |
-| [Zuiyou ADFree](https://github.com/kazutoiris/zuiyou-adfree)                    | [kazutoiris](https://github.com/kazutoiris)     |
+| Repository                                 | Developer                             |
+|--------------------------------------------|---------------------------------------|
+| [FirstProject](https://github.com/xxx/One) | [FirstAuthor](https://github.com/one) |
 
-Are you also using `YukiHookAPI`? Come and **PR** to add your repository to the list above (private repositories do not need to indicate web
+Are you also using `KYukiHookAPI`? Come and **PR** to add your repository to the list above (private repositories do not need to indicate web
 links).
 
 ## Promotion
@@ -75,7 +56,7 @@ links).
 
 ## Star History
 
-![Star History Chart](https://api.star-history.com/svg?repos=HighCapable/YukiHookAPI&type=Date)
+![Star History Chart](https://api.star-history.com/svg?repos=DreamMoonCai/KYukiHookAPI&type=Date)
 
 ## Third-Party Open Source Usage Statement
 

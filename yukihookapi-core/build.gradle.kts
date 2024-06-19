@@ -1,4 +1,6 @@
+import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.include
 
 plugins {
     autowire(libs.plugins.android.library)
@@ -57,3 +59,21 @@ mavenPublishing {
         version = version.toString()
     )
 }
+
+tasks.register<Copy>("makeJar") {
+    delete("build/${property.project.name}_V${property.project.yukihookapi.core.version}.jar") //删除之前的旧jar包
+    from("build/intermediates/full_jar/release/createFullJarRelease/") //从这个目录下取出默认jar包
+    into("build/") //将jar包输出到指定目录下
+    include("full.jar")
+    rename("full.jar", "outputs/jar/${property.project.name}_V${property.project.yukihookapi.core.version}.jar") //自定义jar包的名字
+}
+tasks.named("makeJar").dependsOn("createFullJarRelease")
+
+tasks.register<Copy>("makeSourcesJar") {
+    delete("build/${property.project.name}_V${property.project.yukihookapi.core.version}.jar") //删除之前的旧jar包
+    from("build/intermediates/source_jar/release/") //从这个目录下取出默认jar包
+    into("build/") //将jar包输出到指定目录下
+    include("release-sources.jar")
+    rename("release-sources.jar", "outputs/jar/${property.project.name}_V${property.project.yukihookapi.core.version}-sources.jar") //自定义jar包的名字
+}
+tasks.named("makeSourcesJar").dependsOn("sourceReleaseJar")

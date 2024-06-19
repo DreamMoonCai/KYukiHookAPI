@@ -66,7 +66,7 @@ libraries:
       version: 82
       repositories:
         rovo89-xposed-api
-  com.highcapable.yukihookapi:
+  io.github.dreammooncai.yukihookapi:
     api:
       version: +
     # Must be added when used as an Xposed Module, otherwise optional
@@ -96,11 +96,11 @@ Then, deploy dependencies in your project `build.gradle.kts`.
 ```kotlin
 dependencies {
     // Basic dependencies
-    implementation(com.highcapable.yukihookapi.api)
+    implementation(io.github.dreammooncai.yukihookapi.api)
     // Must be added when used as an Xposed Module, otherwise optional
     compileOnly(de.robv.android.xposed.api)
     // Must be added when used as an Xposed Module, otherwise optional
-    ksp(com.highcapable.yukihookapi.ksp.xposed)
+    ksp(io.github.dreammooncai.yukihookapi.ksp.xposed)
 }
 ```
 
@@ -161,11 +161,11 @@ Add dependencies in your project `build.gradle.kts` or `build.gradle`.
 ```kotlin
 dependencies {
     // Basic dependency
-    implementation("com.highcapable.yukihookapi:api:<yuki-version>")
+    implementation("io.github.dreammooncai.yukihookapi:api:<yuki-version>")
     // Must be added when used as an Xposed Module, otherwise optional
     compileOnly("de.robv.android.xposed:api:82")
     // Must be added when used as an Xposed Module, otherwise optional
-    ksp("com.highcapable.yukihookapi:ksp-xposed:<yuki-version>")
+    ksp("io.github.dreammooncai.yukihookapi:ksp-xposed:<yuki-version>")
 }
 ```
 
@@ -174,11 +174,11 @@ dependencies {
 ```groovy
 dependencies {
     // Basic dependency
-    implementation 'com.highcapable.yukihookapi:api:<yuki-version>'
+    implementation 'io.github.dreammooncai.yukihookapi:api:<yuki-version>'
     // Must be added when used as an Xposed Module, otherwise optional
     compileOnly 'de.robv.android.xposed:api:82'
     // Must be added when used as an Xposed Module, otherwise optional
-    ksp 'com.highcapable.yukihookapi:ksp-xposed:<yuki-version>'
+    ksp 'io.github.dreammooncai.yukihookapi:ksp-xposed:<yuki-version>'
 }
 ```
 

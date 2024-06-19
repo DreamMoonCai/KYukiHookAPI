@@ -22,6 +22,6 @@ sweetProperty {
     project(":samples:demo-app", ":samples:demo-module", ":yukihookapi-stub") { sourcesCode { isEnable = false } }
     project(":yukihookapi-core", ":yukihookapi-ksp-xposed") { sourcesCode { className = rootProject.name } }
 }
-rootProject.name = "YukiHookAPI"
+rootProject.name = "KYukiHookAPI"
 include(":samples:demo-app", ":samples:demo-module")
 include(":yukihookapi-core", ":yukihookapi-ksp-xposed", ":yukihookapi-stub")

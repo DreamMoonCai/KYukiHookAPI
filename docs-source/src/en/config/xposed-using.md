@@ -6,7 +6,7 @@
 
 > As an Xposed Module, `YukiHookAPI` provides an automatic builder.
 
-You need to integrate the latest version of the `com.highcapable.yukihookapi:ksp-xposed` dependency in your build script.
+You need to integrate the latest version of the `io.github.dreammooncai.yukihookapi:ksp-xposed` dependency in your build script.
 
 ## Custom Automatic Builder
 

@@ -4,7 +4,7 @@
 
 ## 依赖配置
 
-你只需要集成 `com.highcapable.yukihookapi:api` 依赖即可。
+你只需要集成 `io.github.dreammooncai.yukihookapi:api` 依赖即可。
 
 然后请集成你目标使用的 `Hook Framework` 依赖。
 

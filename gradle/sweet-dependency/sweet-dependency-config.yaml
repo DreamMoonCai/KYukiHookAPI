@@ -58,8 +58,6 @@ libraries:
   com.github.tiann:
     FreeReflection:
       version: 3.2.0
-      repositories:
-        jit-pack
   com.google.devtools.ksp:
     symbol-processing-api:
       version-ref: <plugins>::kotlin-ksp
