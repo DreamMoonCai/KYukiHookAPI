@@ -32,13 +32,13 @@ import java.util.Date
  * 包名常量定义类
  */
 object PackageName {
-    const val YukiHookAPI_Impl = "com.highcapable.yukihookapi"
-    const val ModuleApplication_Impl = "com.highcapable.yukihookapi.hook.xposed.application"
-    const val YukiXposedModuleStatus_Impl = "com.highcapable.yukihookapi.hook.xposed.bridge.status"
-    const val HandlerDelegateImpl_Impl = "com.highcapable.yukihookapi.hook.xposed.parasitic.activity.delegate.impl"
-    const val HandlerDelegateClass = "com.highcapable.yukihookapi.hook.xposed.parasitic.activity.delegate"
-    const val IActivityManagerProxyImpl_Impl = "com.highcapable.yukihookapi.hook.xposed.parasitic.activity.delegate.impl"
-    const val IActivityManagerProxyClass = "com.highcapable.yukihookapi.hook.xposed.parasitic.activity.delegate"
+    const val YukiHookAPI_Impl = "io.github.dreammooncai.yukihookapi"
+    const val ModuleApplication_Impl = "io.github.dreammooncai.yukihookapi.hook.xposed.application"
+    const val YukiXposedModuleStatus_Impl = "io.github.dreammooncai.yukihookapi.hook.xposed.bridge.status"
+    const val HandlerDelegateImpl_Impl = "io.github.dreammooncai.yukihookapi.hook.xposed.parasitic.activity.delegate.impl"
+    const val HandlerDelegateClass = "io.github.dreammooncai.yukihookapi.hook.xposed.parasitic.activity.delegate"
+    const val IActivityManagerProxyImpl_Impl = "io.github.dreammooncai.yukihookapi.hook.xposed.parasitic.activity.delegate.impl"
+    const val IActivityManagerProxyClass = "io.github.dreammooncai.yukihookapi.hook.xposed.parasitic.activity.delegate"
 }
 
 /**

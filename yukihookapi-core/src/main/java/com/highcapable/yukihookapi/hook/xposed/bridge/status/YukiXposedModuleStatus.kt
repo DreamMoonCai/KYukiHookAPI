@@ -27,7 +27,7 @@ import com.highcapable.yukihookapi.hook.core.finder.members.MethodFinder
 import com.highcapable.yukihookapi.hook.factory.method
 import com.highcapable.yukihookapi.hook.factory.toClassOrNull
 import com.highcapable.yukihookapi.hook.log.YLog
-import io.github.dreammooncai.yukihookapi.xposed.bridge.status.YukiXposedModuleStatus_Impl
+import io.github.dreammooncai.yukihookapi.hook.xposed.bridge.status.YukiXposedModuleStatus_Impl
 
 /**
  * 这是一个 Xposed 模块 Hook 状态类

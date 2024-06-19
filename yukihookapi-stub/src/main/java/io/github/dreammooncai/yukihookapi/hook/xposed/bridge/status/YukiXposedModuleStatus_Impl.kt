@@ -22,7 +22,7 @@
  */
 @file:Suppress("ClassName")
 
-package io.github.dreammooncai.yukihookapi.xposed.bridge.status
+package io.github.dreammooncai.yukihookapi.hook.xposed.bridge.status
 
 /**
  * YukiXposedModuleStatus 注入 Stub

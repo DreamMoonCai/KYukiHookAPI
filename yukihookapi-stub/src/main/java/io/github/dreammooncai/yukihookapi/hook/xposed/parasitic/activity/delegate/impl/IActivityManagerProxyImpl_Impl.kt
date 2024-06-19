@@ -17,21 +17,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This file is created by fankes on 2022/9/26.
+ * This file is created by fankes on 2023/4/8.
+ * Thanks for providing https://github.com/cinit/QAuxiliary/blob/main/app/src/main/java/io/github/qauxv/lifecycle/Parasitics.java
  */
-@file:Suppress("ClassName")
+@file:Suppress("unused", "ClassName", "UNUSED_PARAMETER")
 
-package io.github.dreammooncai.yukihookapi.xposed.application
+package io.github.dreammooncai.yukihookapi.hook.xposed.parasitic.activity.delegate.impl
+
+import android.app.ActivityManager
 
 /**
- * ModuleApplication 注入 Stub
+ *  IActivityManagerProxyImpl 注入 Stub
  */
-object ModuleApplication_Impl {
+object IActivityManagerProxyImpl_Impl {
 
     /**
-     * 调用 Hook 入口类的 onInit 方法
+     * 创建 [ActivityManager] 代理
      *
      * 方法内容将在每次编译时自动生成
+     * @param clazz 代理的目标 [Class]
+     * @param instance 代理的目标实例
+     * @return [Any] 代理包装后的实例
      */
-    fun callHookEntryInit(): Unit = error("Stub!")
+    fun createWrapper(clazz: Class<*>?, instance: Any): Any = error("Stub!")
 }

@@ -23,7 +23,7 @@
 package com.highcapable.yukihookapi.hook.xposed.parasitic.activity.delegate.impl
 
 import android.os.Handler
-import io.github.dreammooncai.yukihookapi.xposed.parasitic.activity.delegate.impl.HandlerDelegateImpl_Impl
+import io.github.dreammooncai.yukihookapi.hook.xposed.parasitic.activity.delegate.impl.HandlerDelegateImpl_Impl
 
 /**
  * 代理当前 [Handler.Callback] 调用接口实现

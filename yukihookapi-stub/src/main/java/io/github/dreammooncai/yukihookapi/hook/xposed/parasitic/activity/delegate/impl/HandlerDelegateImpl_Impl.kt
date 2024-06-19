@@ -20,24 +20,31 @@
  * This file is created by fankes on 2023/4/8.
  * Thanks for providing https://github.com/cinit/QAuxiliary/blob/main/app/src/main/java/io/github/qauxv/lifecycle/Parasitics.java
  */
-@file:Suppress("unused", "ClassName", "UNUSED_PARAMETER")
+@file:Suppress("ClassName", "UNUSED_PARAMETER")
 
-package io.github.dreammooncai.yukihookapi.xposed.parasitic.activity.delegate.impl
+package io.github.dreammooncai.yukihookapi.hook.xposed.parasitic.activity.delegate.impl
 
-import android.app.ActivityManager
+import android.os.Handler
 
 /**
- *  IActivityManagerProxyImpl 注入 Stub
+ *  HandlerDelegateImpl 注入 Stub
  */
-object IActivityManagerProxyImpl_Impl {
+object HandlerDelegateImpl_Impl {
 
     /**
-     * 创建 [ActivityManager] 代理
+     * 获取 [Handler.Callback] 实例 [Class] 名称
+     *
+     * 返回值将在每次编译时自动生成
+     * @return [String]
+     */
+    val wrapperClassName get(): String = error("Stub!")
+
+    /**
+     * 从 [Handler.Callback] 创建实例
      *
      * 方法内容将在每次编译时自动生成
-     * @param clazz 代理的目标 [Class]
-     * @param instance 代理的目标实例
-     * @return [Any] 代理包装后的实例
+     * @param baseInstance [Handler.Callback] 实例 - 可空
+     * @return [Handler.Callback]
      */
-    fun createWrapper(clazz: Class<*>?, instance: Any): Any = error("Stub!")
+    fun createWrapper(baseInstance: Handler.Callback? = null): Handler.Callback = error("Stub!")
 }

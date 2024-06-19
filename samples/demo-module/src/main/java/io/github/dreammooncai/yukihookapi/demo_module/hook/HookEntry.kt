@@ -40,6 +40,8 @@ import com.highcapable.yukihookapi.hook.factory.constructor
 import com.highcapable.yukihookapi.hook.factory.field
 import com.highcapable.yukihookapi.hook.factory.method
 import com.highcapable.yukihookapi.hook.factory.registerModuleAppActivities
+import com.highcapable.yukihookapi.hook.factory.toClass
+import com.highcapable.yukihookapi.hook.log.YLog
 import com.highcapable.yukihookapi.hook.type.android.ActivityClass
 import com.highcapable.yukihookapi.hook.type.android.BundleClass
 import com.highcapable.yukihookapi.hook.type.java.StringArrayClass
@@ -54,6 +56,9 @@ import io.github.dreammooncai.yukihookapi.demo_module.R
 import io.github.dreammooncai.yukihookapi.demo_module.data.DataConst
 import io.github.dreammooncai.yukihookapi.demo_module.hook.factory.compatStyle
 import io.github.dreammooncai.yukihookapi.demo_module.ui.MainActivity
+import io.github.dreammooncai.yukihookapi.kt.KYukiHookAPI
+import io.github.dreammooncai.yukireflection.factory.function
+import io.github.dreammooncai.yukireflection.factory.property
 
 @InjectYukiHookWithXposed(isUsingResourcesHook = true)
 object HookEntry : IYukiHookXposedInit {
@@ -141,7 +146,7 @@ object HookEntry : IYukiHookXposedInit {
             // 是否启用当前 Xposed 模块与宿主交互的 [YukiHookDataChannel] 功能
             // 请确保 Xposed 模块的 [Application] 继承于 [ModuleApplication] 才能有效
             // 此功能默认启用 - 关闭后将不会在功能初始化的时候装载 [YukiHookDataChannel]
-            // 功能启用后 - 将会在宿主启动时自动 Hook [Application] 的生命周期方法进行注册
+            // 功能启用后 - 将会在宿主启动时自动 Hook [Application] 的生命周期函数进行注册
             isEnableDataChannel = true
         }
     }
@@ -149,19 +154,52 @@ object HookEntry : IYukiHookXposedInit {
     @OptIn(LegacyResourcesHook::class)
     override fun onHook() {
         // Start your hook
-        // Can be shortened to encase {}
+        // Can be shortened to encaseKotlin {}
         // 开始你的 Hook
-        // 可简写为 encase {}
-        YukiHookAPI.encase {
-            // Load App Zygote event
-            // 装载 APP Zygote 事件
-            loadZygote {
+        // 可简写为 encaseKotlin {}
+        KYukiHookAPI.encase {
+            loadZygoteKotlin {
                 // Find Class to hook
                 // 得到需要 Hook 的 Class
-                ActivityClass.method {
-                    name = "onCreate"
-                    param(BundleClass)
-                }.hook {
+                Activity::onCreate.hook {
+                    after {
+                        // Add text after the [Activity] title
+                        // 在 [Activity] 标题后方加入文字
+                        instance<Activity>().apply { title = "$title [Active]" }
+                    }
+                }
+                // Find Resources to hook
+                // Requires Hook Framework to support Resources Hook to succeed
+                // Resources Hook in Zygote only needs Hook Framework support, no need to enable this feature
+                // 得到需要 Hook 的 Resources
+                // 需要 Hook Framework 支持 Resources Hook(资源钩子) 才能成功
+                // 在 Zygote 中的 Resources Hook 只需要 Hook Framework 支持 - 无需启用此功能
+                resources().hook {
+                    // Inject the Resources to be hooked
+                    // 注入要 Hook 的 Resources
+                    injectResource {
+                        // Set the conditions
+                        // 设置条件
+                        conditions {
+                            name = "sym_def_app_icon"
+                            mipmap()
+                        }
+                        // Replace with the Resources of the current Module App
+                        // Module App's Resources can be obfuscated with R8, results are not affected
+                        // 替换为当前模块的 Resources
+                        // 模块的 Resources 可以使用 R8 混淆 - 结果不受影响
+                        replaceToModuleResource(R.mipmap.ic_icon)
+                    }
+                }
+            }
+        }
+        KYukiHookAPI.encase {
+            // Load App Zygote event
+            // 装载 APP Zygote 事件
+            loadZygoteKotlin {
+                // Find Class to hook
+                // 得到需要 Hook 的 Class
+                Activity::onCreate.hook {
                     after {
                         // Add text after the [Activity] title
                         // 在 [Activity] 标题后方加入文字
@@ -194,7 +232,7 @@ object HookEntry : IYukiHookXposedInit {
             }
             // Load the app to be hooked
             // 装载需要 Hook 的 APP
-            loadApp(name = "io.github.dreammooncai.yukihookapi.demo_app") {
+            loadAppKotlin(name = "io.github.dreammooncai.yukihookapi.demo_app") {
                 // Register Activity Proxy
                 // 注册模块 Activity 代理
                 onAppLifecycle {
@@ -202,10 +240,10 @@ object HookEntry : IYukiHookXposedInit {
                 }
                 // Find Class to hook
                 // 得到需要 Hook 的 Class
-                "$packageName.ui.MainActivity".toClass().apply {
+                "$packageName.ui.MainActivity".toKClass().apply {
                     // Inject the method to be hooked
-                    // 注入要 Hook 的方法
-                    method {
+                    // 注入要 Hook 的函数
+                    function {
                         name = "getFirstText"
                         emptyParam()
                         returnType = StringClass
@@ -215,25 +253,25 @@ object HookEntry : IYukiHookXposedInit {
                         replaceTo(any = "Hello YukiHookAPI!")
                     }
                     // Inject the method to be hooked
-                    // 注入要 Hook 的方法
-                    method {
+                    // 注入要 Hook 的函数
+                    function {
                         name = "onCreate"
                         param(BundleClass)
                     }.hook {
                         // Before hook the method
-                        // 在方法执行之前拦截
+                        // 在函数执行之前拦截
                         before {
                             // The instance is "$packageName.ui.MainActivity"
                             // We used "apply" function on the top
                             // 当前实例为 "$packageName.ui.MainActivity"
-                            // 我们在顶部使用了 "apply" 方法
-                            field {
+                            // 我们在顶部使用了 "apply" 函数
+                            property {
                                 name = "secondText"
                                 type = StringClass
                             }.get(instance).set("I am hook result")
                         }
                         // After hook the method
-                        // 在执行方法之后拦截
+                        // 在执行函数之后拦截
                         after {
                             if (prefs.getBoolean("show_dialog_when_demo_app_opend"))
                                 MaterialAlertDialogBuilder(instance<Activity>().applyModuleTheme(R.style.Theme_Default))
@@ -249,14 +287,14 @@ object HookEntry : IYukiHookXposedInit {
                         }
                     }
                     // Inject the method to be hooked
-                    // 注入要 Hook 的方法
-                    method {
+                    // 注入要 Hook 的函数
+                    function {
                         name = "getRegularText"
                         param(StringClass)
                         returnType = StringClass
                     }.hook {
                         // Before hook the method
-                        // 在方法执行之前拦截
+                        // 在函数执行之前拦截
                         before {
                             // Set the 0th param (recomment)
                             // 设置 0 号 param (推荐)
@@ -267,14 +305,14 @@ object HookEntry : IYukiHookXposedInit {
                         }
                     }
                     // Inject the method to be hooked
-                    // 注入要 Hook 的方法
-                    method {
+                    // 注入要 Hook 的函数
+                    function {
                         name = "getArray"
                         param(StringArrayClass)
                         returnType = StringArrayClass
                     }.hook {
                         // Before hook the method
-                        // 在方法执行之前拦截
+                        // 在函数执行之前拦截
                         before {
                             // Set the 0th param
                             // 设置 0 号 param
@@ -282,14 +320,14 @@ object HookEntry : IYukiHookXposedInit {
                         }
                     }
                     // Inject the method to be hooked
-                    // 注入要 Hook 的方法
-                    method {
+                    // 注入要 Hook 的函数
+                    function {
                         name = "toast"
                         emptyParam()
                         returnType = UnitType
                     }.hook {
                         // Intercept the entire method
-                        // 拦截整个方法
+                        // 拦截整个函数
                         replaceUnit {
                             instance<Activity>().applyModuleTheme(R.style.Theme_Default).also { context ->
                                 MaterialAlertDialogBuilder(context)
@@ -314,8 +352,8 @@ object HookEntry : IYukiHookXposedInit {
                         }
                     }
                     // Inject the method to be hooked
-                    // 注入要 Hook 的方法
-                    method {
+                    // 注入要 Hook 的函数
+                    function {
                         name = "getDataText"
                         emptyParam()
                         returnType = StringClass
@@ -329,10 +367,10 @@ object HookEntry : IYukiHookXposedInit {
                 // 得到需要 Hook 的 Class
                 "$packageName.test.Main".toClass().apply {
                     // Inject the method to be hooked
-                    // 注入要 Hook 的方法
+                    // 注入要 Hook 的函数
                     constructor { param(StringClass) }.hook {
                         // Before hook the method
-                        // 在方法执行之前拦截
+                        // 在函数执行之前拦截
                         before {
                             // Set the 0th param
                             // 设置 0 号 param
@@ -340,7 +378,7 @@ object HookEntry : IYukiHookXposedInit {
                         }
                     }
                     // Inject the method to be hooked
-                    // 注入要 Hook 的方法
+                    // 注入要 Hook 的函数
                     method {
                         name = "getSuperString"
                         emptyParam()
@@ -349,9 +387,9 @@ object HookEntry : IYukiHookXposedInit {
                         // Since the method shown will only exist in the super class
                         // So you can set only the super class to find isOnlySuperClass = true to save time
                         // If you want to keep trying to find the current Class, please remove isOnlySuperClass = true
-                        // 这个方法不在当前的 Class
+                        // 这个函数不在当前的 Class
                         // 只需要设置此查找条件即可自动前往当前 Class 的父类查找
-                        // 由于演示的方法只会在父类存在 - 所以可以设置仅查找父类 isOnlySuperClass = true 节省时间
+                        // 由于演示的函数只会在父类存在 - 所以可以设置仅查找父类 isOnlySuperClass = true 节省时间
                         // 如果想继续尝试查找当前 Class - 请删除 isOnlySuperClass = true
                         superClass(isOnlySuperClass = true)
                     }.hook {
@@ -360,7 +398,7 @@ object HookEntry : IYukiHookXposedInit {
                         replaceTo(any = "I am hook super class method")
                     }
                     // Inject the method to be hooked
-                    // 注入要 Hook 的方法
+                    // 注入要 Hook 的函数
                     method {
                         name = "getTestResultFirst"
                     }.hookAll {
@@ -369,7 +407,7 @@ object HookEntry : IYukiHookXposedInit {
                         replaceTo(any = "I am hook all methods first")
                     }
                     // Inject the method to be hooked
-                    // 注入要 Hook 的方法
+                    // 注入要 Hook 的函数
                     method {
                         name = "getTestResultLast"
                     }.hookAll {
@@ -436,8 +474,8 @@ object HookEntry : IYukiHookXposedInit {
 
     // Optional listener function, you can not override this method if you don't need it
     // This method is implemented in Demo only to introduce its function
-    // 可选的监听功能 - 如不需要你可以不重写这个方法
-    // Demo 中实现这个方法仅为了介绍它的功能
+    // 可选的监听功能 - 如不需要你可以不重写这个函数
+    // Demo 中实现这个函数仅为了介绍它的功能
     override fun onXposedEvent() {
         // (Optional) Listen to the loading event of the native Xposed API
         // If your Hook event has native Xposed functionality that needs to be compatible, it can be implemented here
@@ -454,14 +492,14 @@ object HookEntry : IYukiHookXposedInit {
                 // Implement listener handleLoadPackage event
                 // Call native Xposed API methods
                 // 实现监听 handleLoadPackage 事件
-                // 可调用原生 Xposed API 方法
+                // 可调用原生 Xposed API 函数
                 // XposedHelpers.findAndHookMethod("className", it.classLoader, "methodName", object : XC_MethodHook())
             }
             onHandleInitPackageResources {
                 // Implement the listener handleInitPackageResources event
                 // Call native Xposed API methods
                 // 实现监听 handleInitPackageResources 事件
-                // 可调用原生 Xposed API 方法
+                // 可调用原生 Xposed API 函数
                 // it.res.setReplacement(0x7f060001, "replaceMent")
             }
         }

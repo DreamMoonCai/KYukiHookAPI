@@ -17,34 +17,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This file is created by fankes on 2023/4/8.
- * Thanks for providing https://github.com/cinit/QAuxiliary/blob/main/app/src/main/java/io/github/qauxv/lifecycle/Parasitics.java
+ * This file is created by fankes on 2022/9/26.
  */
-@file:Suppress("ClassName", "UNUSED_PARAMETER")
+@file:Suppress("ClassName")
 
-package io.github.dreammooncai.yukihookapi.xposed.parasitic.activity.delegate.impl
-
-import android.os.Handler
+package io.github.dreammooncai.yukihookapi.hook.xposed.application
 
 /**
- *  HandlerDelegateImpl 注入 Stub
+ * ModuleApplication 注入 Stub
  */
-object HandlerDelegateImpl_Impl {
+object ModuleApplication_Impl {
 
     /**
-     * 获取 [Handler.Callback] 实例 [Class] 名称
-     *
-     * 返回值将在每次编译时自动生成
-     * @return [String]
-     */
-    val wrapperClassName get(): String = error("Stub!")
-
-    /**
-     * 从 [Handler.Callback] 创建实例
+     * 调用 Hook 入口类的 onInit 方法
      *
      * 方法内容将在每次编译时自动生成
-     * @param baseInstance [Handler.Callback] 实例 - 可空
-     * @return [Handler.Callback]
      */
-    fun createWrapper(baseInstance: Handler.Callback? = null): Handler.Callback = error("Stub!")
+    fun callHookEntryInit(): Unit = error("Stub!")
 }

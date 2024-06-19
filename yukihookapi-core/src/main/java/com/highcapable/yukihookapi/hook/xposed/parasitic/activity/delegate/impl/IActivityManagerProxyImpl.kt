@@ -23,7 +23,7 @@
 package com.highcapable.yukihookapi.hook.xposed.parasitic.activity.delegate.impl
 
 import android.app.ActivityManager
-import io.github.dreammooncai.yukihookapi.xposed.parasitic.activity.delegate.impl.IActivityManagerProxyImpl_Impl
+import io.github.dreammooncai.yukihookapi.hook.xposed.parasitic.activity.delegate.impl.IActivityManagerProxyImpl_Impl
 
 /**
  * 代理当前 [ActivityManager] 调用接口实现

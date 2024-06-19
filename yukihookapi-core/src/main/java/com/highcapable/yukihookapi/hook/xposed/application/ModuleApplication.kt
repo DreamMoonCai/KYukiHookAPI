@@ -27,7 +27,7 @@ import com.highcapable.yukihookapi.YukiHookAPI
 import com.highcapable.yukihookapi.hook.xposed.application.ModuleApplication.Companion.appContext
 import com.highcapable.yukihookapi.hook.xposed.channel.YukiHookDataChannel
 import com.highcapable.yukihookapi.hook.xposed.proxy.IYukiHookXposedInit
-import io.github.dreammooncai.yukihookapi.xposed.application.ModuleApplication_Impl
+import io.github.dreammooncai.yukihookapi.hook.xposed.application.ModuleApplication_Impl
 import me.weishu.reflection.Reflection
 
 /**
