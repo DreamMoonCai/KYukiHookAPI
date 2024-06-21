@@ -45,7 +45,7 @@ dependencies {
     implementation(androidx.appcompat.appcompat)
     implementation(org.jetbrains.kotlin.kotlin.reflect)
     implementation(io.github.dreammooncai.yukireflection.api.kotlin)
-    implementation(com.highcapable.yukihookapi.api)
+    compileOnly(com.highcapable.yukihookapi.api)
 }
 
 mavenPublishing {
