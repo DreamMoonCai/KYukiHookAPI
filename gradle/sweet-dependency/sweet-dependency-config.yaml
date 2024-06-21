@@ -47,6 +47,12 @@ libraries:
   io.github.dreammooncai.yukireflection:
     api-kotlin:
       version: 1.0.1
+  com.highcapable.yukihookapi:
+    api:
+      version: 1.2.1
+    # 作为 Xposed 模块使用务必添加，其它情况可选
+    ksp-xposed:
+      version-ref: <this>::api
   org.jetbrains.kotlin:
     kotlin-reflect:
       version-ref: <plugins>::kotlin-jvm

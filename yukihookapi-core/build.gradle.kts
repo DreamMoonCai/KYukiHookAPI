@@ -41,14 +41,11 @@ android {
 }
 
 dependencies {
-    compileOnly(de.robv.android.xposed.api)
-    compileOnly(projects.yukihookapiStub)
-    implementation(com.github.tiann.freeReflection)
     implementation(androidx.core.core.ktx)
     implementation(androidx.appcompat.appcompat)
-    implementation(androidx.preference.preference.ktx)
     implementation(org.jetbrains.kotlin.kotlin.reflect)
     implementation(io.github.dreammooncai.yukireflection.api.kotlin)
+    implementation(com.highcapable.yukihookapi.api)
 }
 
 mavenPublishing {
