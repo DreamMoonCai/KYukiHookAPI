@@ -5,7 +5,9 @@ import android.os.Bundle
 import io.github.dreammooncai.yukihookapi.kt.core.KCallableHookCreator
 import io.github.dreammooncai.yukireflection.factory.kotlin
 import com.highcapable.yukihookapi.hook.param.HookParam
+import io.github.dreammooncai.yukireflection.factory.findParameterIndexByName
 import kotlin.reflect.*
+import kotlin.reflect.full.findParameterByName
 
 /**
  * Hook 方法、构造方法的目标对象实现类
@@ -13,7 +15,7 @@ import kotlin.reflect.*
  * 基于 [HookParam] 实现的 Kotlin 版本
  */
 class KHookParam private constructor(
-    private val impl:HookParam
+    internal val impl:HookParam
 ) {
 
     internal companion object {
@@ -158,6 +160,14 @@ class KHookParam private constructor(
      * @return [HookParam.ArgsModifyer]
      */
     fun args(index: Int) = impl.args(index)
+
+    /**
+     * 获取当前 Hook 对象的 [function] 的参数实例化对象类
+     * @param name 参数对象数组的参数名
+     * @param isCountExtensionRef 是否计入拓展对象
+     * @return [HookParam.ArgsModifyer]
+     */
+    fun args(name:String,isCountExtensionRef:Boolean = true) = impl.args(function.findParameterIndexByName(name,isCountExtensionRef))
 
     /**
      * 执行原始 [KCallable]

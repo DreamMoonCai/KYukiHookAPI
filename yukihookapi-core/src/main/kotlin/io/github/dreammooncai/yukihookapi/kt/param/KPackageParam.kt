@@ -26,17 +26,25 @@ import io.github.dreammooncai.yukireflection.type.kotlin.StringArrayKClass
 import com.highcapable.yukihookapi.hook.core.YukiMemberHookCreator.MemberHookCreator.HookCallback
 import com.highcapable.yukihookapi.hook.core.api.priority.YukiHookPriority
 import com.highcapable.yukihookapi.hook.core.finder.base.BaseFinder
+import com.highcapable.yukihookapi.hook.core.finder.members.ConstructorFinder
+import com.highcapable.yukihookapi.hook.core.finder.members.FieldFinder
+import com.highcapable.yukihookapi.hook.core.finder.members.MethodFinder
 import com.highcapable.yukihookapi.hook.param.PackageParam
 import com.highcapable.yukihookapi.hook.param.wrapper.PackageParamWrapper
+import io.github.dreammooncai.yukihookapi.kt.factory.attach
+import io.github.dreammooncai.yukihookapi.kt.factory.attachEmptyParam
+import io.github.dreammooncai.yukihookapi.kt.factory.attachStatic
 import io.github.dreammooncai.yukireflection.bean.KVariousClass
 import io.github.dreammooncai.yukireflection.factory.allFunctionSignatures
 import io.github.dreammooncai.yukireflection.factory.allPropertySignatures
+import io.github.dreammooncai.yukireflection.factory.attach
 import io.github.dreammooncai.yukireflection.factory.functionSignature
 import io.github.dreammooncai.yukireflection.factory.hasFunctionSignature
 import io.github.dreammooncai.yukireflection.factory.hasKClass
 import io.github.dreammooncai.yukireflection.factory.hasPropertySignature
 import io.github.dreammooncai.yukireflection.factory.propertySignature
 import io.github.dreammooncai.yukireflection.factory.toKCallable
+import io.github.dreammooncai.yukireflection.factory.toKClass
 import io.github.dreammooncai.yukireflection.factory.toKClassOrNull
 import io.github.dreammooncai.yukireflection.factory.toKFunction
 import io.github.dreammooncai.yukireflection.factory.toKFunctionOrNull
@@ -51,6 +59,13 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import io.github.dreammooncai.yukireflection.finder.tools.KReflectionTool
+import kotlin.reflect.KFunction0
+import kotlin.reflect.KFunction1
+import kotlin.reflect.KFunction2
+import kotlin.reflect.KFunction3
+import kotlin.reflect.KProperty0
+import kotlin.reflect.KProperty2
+import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf
 import kotlin.reflect.jvm.internal.impl.metadata.jvm.JvmProtoBuf
 
@@ -72,6 +87,12 @@ import io.github.dreammooncai.yukireflection.factory.functionSignature as functi
 import io.github.dreammooncai.yukireflection.factory.allFunctionSignatures as allFunctionSignaturesGlobal
 import io.github.dreammooncai.yukireflection.factory.allPropertySignatures as allPropertySignaturesGlobal
 import io.github.dreammooncai.yukireflection.factory.findClass as findClassGlobal
+import io.github.dreammooncai.yukireflection.factory.attach as attachGlobal
+import io.github.dreammooncai.yukireflection.factory.attachStatic as attachStaticGlobal
+import io.github.dreammooncai.yukireflection.factory.attachEmptyParam as attachEmptyParamGlobal
+import io.github.dreammooncai.yukihookapi.kt.factory.attach as attachGlobal
+import io.github.dreammooncai.yukihookapi.kt.factory.attachStatic as attachStaticGlobal
+import io.github.dreammooncai.yukihookapi.kt.factory.attachEmptyParam as attachEmptyParamGlobal
 
 /**
  * 获取 Kotlin 拓展式 [PackageParam]
@@ -85,14 +106,75 @@ open class KPackageParam internal constructor(wrapper: PackageParamWrapper? = nu
 
     /**
      * 通用的[Suppress]过滤规则
+     *
+     * 这些规则同于快速参考与记忆部分规则
+     *
+     * 直接调用可能没有效果应该像下面这样写入字符串值
+     *
+     *     如:
+     *     Suppress(Ignore.INVISIBLE_REFERENCE,Ignore.INVISIBLE_MEMBER)
+     *     ->>
+     *     Suppress("INVISIBLE_REFERENCE","INVISIBLE_MEMBER")
      */
     object Ignore {
         /**
          * 忽略父类依赖有问题的提示异常
          *
-         * 这通常在反编译的代码引用中出现的异常，通常忽略不会影响编译
+         * 这通常在反编译的代码引用中出现的异常
+         *
+         * 错误效果如下:
+         *
+         *     Cannot access 'xx.xxx.A' which is a supertype of 'xx.xxx.A'. Check your module classpath for missing or conflicting dependencies
          */
         const val MISSING_DEPENDENCY_SUPERCLASS = "MISSING_DEPENDENCY_SUPERCLASS"
+
+        /**
+         * 强制使用 internal 引用内容
+         *
+         * 往往需要同时引用 [INVISIBLE_MEMBER]
+         *
+         * 常用于引用内部模块获取class 如A::class
+         *
+         * 错误效果如下:
+         *
+         *     Cannot access 'A': it is internal in 'xx.xxx'
+         */
+        const val INVISIBLE_REFERENCE = "INVISIBLE_REFERENCE"
+
+        /**
+         * 强制使用 internal 成员内容
+         *
+         * 往往需要同时引用 [INVISIBLE_REFERENCE] 可能还额外需要 [NO_COMPANION_OBJECT]
+         *
+         * 注意:编译器无法获取内模块引用和成员所以涉及类型需指明
+         *
+         * 常用于引用内部模块获取其成员 如A::abc
+         *
+         * 此抑制并不稳定 不推荐使用 会有编译器的连带问题解决得不偿失
+         *
+         * 错误效果如下:
+         *
+         *     Cannot access 'xx': it is internal in 'A'
+         */
+        const val INVISIBLE_MEMBER = "INVISIBLE_MEMBER"
+
+        /**
+         * 强制在没有伴生对象的类使用表达式
+         *
+         * 错误效果如下:
+         *
+         *     Classifier 'class A' does not have a companion object, so it cannot be used as an expression.
+         */
+        const val NO_COMPANION_OBJECT = "NO_COMPANION_OBJECT"
+
+        /**
+         * 强制允许私有内容被内联使用
+         *
+         * 错误效果如下:
+         *
+         *     Public-API inline function cannot access non-public-API 'private xx xx x: Member defined in xx.xxx.A'
+         */
+        const val NON_PUBLIC_CALL_FROM_PUBLIC_INLINE = "NON_PUBLIC_CALL_FROM_PUBLIC_INLINE"
     }
 
     /**
@@ -279,7 +361,7 @@ open class KPackageParam internal constructor(wrapper: PackageParamWrapper? = nu
     /**
      * [javaMember]
      */
-    private val KCallable<*>.javaMemberNotNull get() = javaMember ?: refImpl?.javaMember ?: error("Unable Convert Java Member !")
+    private val KCallable<*>.javaMemberNotNull get() = javaSignatureMember ?: refImpl?.javaSignatureMember ?: error("Unable Convert Java Member !")
 
     /**
      * 直接 Hook 方法、构造方法
@@ -308,6 +390,58 @@ open class KPackageParam internal constructor(wrapper: PackageParamWrapper? = nu
     }.kotlin
 
     /**
+     * 直接 Hook 方法、构造方法
+     *
+     * - 此功能尚在实验阶段 - 在 1.x.x 版本将暂定于此 - 在 2.0.0 版本将完全合并到新 API
+     * @param priority Hook 优先级 - 默认为 [YukiHookPriority.DEFAULT]
+     * @return [KCallableHookCreator.Result]
+     */
+    inline fun KPropertySignatureSupport.hook(
+        priority: YukiHookPriority = YukiHookPriority.DEFAULT
+    ) = member.hook(priority).kotlin
+
+    /**
+     * 直接 Hook 方法、构造方法
+     *
+     * - 此功能尚在实验阶段 - 在 1.x.x 版本将暂定于此 - 在 2.0.0 版本将完全合并到新 API
+     * @param priority Hook 优先级 - 默认为 [YukiHookPriority.DEFAULT]
+     * @param initiate 方法体
+     * @return [KCallableHookCreator.Result]
+     */
+    inline fun KPropertySignatureSupport.hook(
+        priority: YukiHookPriority = YukiHookPriority.DEFAULT,
+        initiate: KCallableHookCreator.() -> Unit
+    ) = member.hook(priority) {
+        initiate(this.kotlin)
+    }.kotlin
+
+    /**
+     * 直接 Hook 方法、构造方法
+     *
+     * - 此功能尚在实验阶段 - 在 1.x.x 版本将暂定于此 - 在 2.0.0 版本将完全合并到新 API
+     * @param priority Hook 优先级 - 默认为 [YukiHookPriority.DEFAULT]
+     * @return [KCallableHookCreator.Result]
+     */
+    inline fun KFunctionSignatureSupport.hook(
+        priority: YukiHookPriority = YukiHookPriority.DEFAULT
+    ) = member.hook(priority).kotlin
+
+    /**
+     * 直接 Hook 方法、构造方法
+     *
+     * - 此功能尚在实验阶段 - 在 1.x.x 版本将暂定于此 - 在 2.0.0 版本将完全合并到新 API
+     * @param priority Hook 优先级 - 默认为 [YukiHookPriority.DEFAULT]
+     * @param initiate 方法体
+     * @return [KCallableHookCreator.Result]
+     */
+    inline fun KFunctionSignatureSupport.hook(
+        priority: YukiHookPriority = YukiHookPriority.DEFAULT,
+        initiate: KCallableHookCreator.() -> Unit
+    ) = member.hook(priority) {
+        initiate(this.kotlin)
+    }.kotlin
+
+    /**
      * 通过 [BaseFinder.BaseResult] 直接 Hook 方法、构造方法
      *
      * - 此功能尚在实验阶段 - 在 1.x.x 版本将暂定于此 - 在 2.0.0 版本将完全合并到新 API
@@ -330,6 +464,14 @@ open class KPackageParam internal constructor(wrapper: PackageParamWrapper? = nu
 
             is KPropertyFinder.Result -> {
                 if (isMultiple) giveAll().hookAll(priority) else give()?.hook(priority) ?: arrayListOf<KCallable<*>>().hookAll(priority)
+            }
+
+            is KPropertySignatureFinder.Result -> {
+                if (isMultiple) giveAll().hookAll(priority) else give()?.hook(priority) ?: arrayListOf<KPropertySignatureSupport>().hookAll(priority)
+            }
+
+            is KFunctionSignatureFinder.Result -> {
+                if (isMultiple) giveAll().hookAll(priority) else give()?.hook(priority) ?: arrayListOf<KFunctionSignatureSupport>().hookAll(priority)
             }
 
             else -> error("This type [$this] not support to hook, supported are Constructors and Methods")
@@ -366,6 +508,7 @@ open class KPackageParam internal constructor(wrapper: PackageParamWrapper? = nu
      * @param priority Hook 优先级 - 默认为 [YukiHookPriority.DEFAULT]
      * @return [KCallableHookCreator]
      */
+    @JvmName("hookAll_KCallable")
     inline fun Array<KCallable<*>>.hookAll(
         priority: YukiHookPriority = YukiHookPriority.DEFAULT
     ) = map { it.javaMemberNotNull }.hookAll(priority).kotlin
@@ -378,6 +521,7 @@ open class KPackageParam internal constructor(wrapper: PackageParamWrapper? = nu
      * @param initiate 方法体
      * @return [KCallableHookCreator.Result]
      */
+    @JvmName("hookAll_KCallable")
     inline fun Array<KCallable<*>>.hookAll(
         priority: YukiHookPriority = YukiHookPriority.DEFAULT,
         initiate: KCallableHookCreator.() -> Unit
@@ -390,6 +534,7 @@ open class KPackageParam internal constructor(wrapper: PackageParamWrapper? = nu
      * @param priority Hook 优先级 - 默认为 [YukiHookPriority.DEFAULT]
      * @return [KCallableHookCreator]
      */
+    @JvmName("hookAll_KCallable")
     inline fun List<KCallable<*>>.hookAll(
         priority: YukiHookPriority = YukiHookPriority.DEFAULT,
     ) = map { it.javaMemberNotNull }.hookAll(priority).kotlin
@@ -402,10 +547,115 @@ open class KPackageParam internal constructor(wrapper: PackageParamWrapper? = nu
      * @param initiate 方法体
      * @return [KCallableHookCreator.Result]
      */
+    @JvmName("hookAll_KCallable")
     inline fun List<KCallable<*>>.hookAll(
         priority: YukiHookPriority = YukiHookPriority.DEFAULT,
         initiate: KCallableHookCreator.() -> Unit
     ) = map { it.javaMemberNotNull }.hookAll(priority) { initiate(this.kotlin) }.kotlin
+
+    /**
+     * 直接 Hook 方法、构造方法 (批量)
+     *
+     * - 此功能尚在实验阶段 - 在 1.x.x 版本将暂定于此 - 在 2.0.0 版本将完全合并到新 API
+     * @param priority Hook 优先级 - 默认为 [YukiHookPriority.DEFAULT]
+     * @return [KCallableHookCreator]
+     */
+    @JvmName("hookAll_KPropertySignatureSupport")
+    inline fun Array<KPropertySignatureSupport>.hookAll(
+        priority: YukiHookPriority = YukiHookPriority.DEFAULT
+    ) = map { it.member }.hookAll(priority).kotlin
+
+    /**
+     * 直接 Hook 方法、构造方法 (批量)
+     *
+     * - 此功能尚在实验阶段 - 在 1.x.x 版本将暂定于此 - 在 2.0.0 版本将完全合并到新 API
+     * @param priority Hook 优先级 - 默认为 [YukiHookPriority.DEFAULT]
+     * @param initiate 方法体
+     * @return [KCallableHookCreator.Result]
+     */
+    @JvmName("hookAll_KPropertySignatureSupport")
+    inline fun Array<KPropertySignatureSupport>.hookAll(
+        priority: YukiHookPriority = YukiHookPriority.DEFAULT,
+        initiate: KCallableHookCreator.() -> Unit
+    ) = map { it.member }.hookAll(priority) { initiate(this.kotlin) }.kotlin
+
+    /**
+     * 直接 Hook 方法、构造方法 (批量)
+     *
+     * - 此功能尚在实验阶段 - 在 1.x.x 版本将暂定于此 - 在 2.0.0 版本将完全合并到新 API
+     * @param priority Hook 优先级 - 默认为 [YukiHookPriority.DEFAULT]
+     * @return [KCallableHookCreator]
+     */
+    @JvmName("hookAll_KPropertySignatureSupport")
+    inline fun List<KPropertySignatureSupport>.hookAll(
+        priority: YukiHookPriority = YukiHookPriority.DEFAULT,
+    ) = map { it.member }.hookAll(priority).kotlin
+
+    /**
+     * 直接 Hook 方法、构造方法 (批量)
+     *
+     * - 此功能尚在实验阶段 - 在 1.x.x 版本将暂定于此 - 在 2.0.0 版本将完全合并到新 API
+     * @param priority Hook 优先级 - 默认为 [YukiHookPriority.DEFAULT]
+     * @param initiate 方法体
+     * @return [KCallableHookCreator.Result]
+     */
+    @JvmName("hookAll_KPropertySignatureSupport")
+    inline fun List<KPropertySignatureSupport>.hookAll(
+        priority: YukiHookPriority = YukiHookPriority.DEFAULT,
+        initiate: KCallableHookCreator.() -> Unit
+    ) = map { it.member }.hookAll(priority) { initiate(this.kotlin) }.kotlin
+
+    /**
+     * 直接 Hook 方法、构造方法 (批量)
+     *
+     * - 此功能尚在实验阶段 - 在 1.x.x 版本将暂定于此 - 在 2.0.0 版本将完全合并到新 API
+     * @param priority Hook 优先级 - 默认为 [YukiHookPriority.DEFAULT]
+     * @return [KCallableHookCreator]
+     */
+    @JvmName("hookAll_KFunctionSignatureSupport")
+    inline fun Array<KFunctionSignatureSupport>.hookAll(
+        priority: YukiHookPriority = YukiHookPriority.DEFAULT
+    ) = map { it.member }.hookAll(priority).kotlin
+
+    /**
+     * 直接 Hook 方法、构造方法 (批量)
+     *
+     * - 此功能尚在实验阶段 - 在 1.x.x 版本将暂定于此 - 在 2.0.0 版本将完全合并到新 API
+     * @param priority Hook 优先级 - 默认为 [YukiHookPriority.DEFAULT]
+     * @param initiate 方法体
+     * @return [KCallableHookCreator.Result]
+     */
+    @JvmName("hookAll_KFunctionSignatureSupport")
+    inline fun Array<KFunctionSignatureSupport>.hookAll(
+        priority: YukiHookPriority = YukiHookPriority.DEFAULT,
+        initiate: KCallableHookCreator.() -> Unit
+    ) = map { it.member }.hookAll(priority) { initiate(this.kotlin) }.kotlin
+
+    /**
+     * 直接 Hook 方法、构造方法 (批量)
+     *
+     * - 此功能尚在实验阶段 - 在 1.x.x 版本将暂定于此 - 在 2.0.0 版本将完全合并到新 API
+     * @param priority Hook 优先级 - 默认为 [YukiHookPriority.DEFAULT]
+     * @return [KCallableHookCreator]
+     */
+    @JvmName("hookAll_KFunctionSignatureSupport")
+    inline fun List<KFunctionSignatureSupport>.hookAll(
+        priority: YukiHookPriority = YukiHookPriority.DEFAULT,
+    ) = map { it.member }.hookAll(priority).kotlin
+
+    /**
+     * 直接 Hook 方法、构造方法 (批量)
+     *
+     * - 此功能尚在实验阶段 - 在 1.x.x 版本将暂定于此 - 在 2.0.0 版本将完全合并到新 API
+     * @param priority Hook 优先级 - 默认为 [YukiHookPriority.DEFAULT]
+     * @param initiate 方法体
+     * @return [KCallableHookCreator.Result]
+     */
+    @JvmName("hookAll_KFunctionSignatureSupport")
+    inline fun List<KFunctionSignatureSupport>.hookAll(
+        priority: YukiHookPriority = YukiHookPriority.DEFAULT,
+        initiate: KCallableHookCreator.() -> Unit
+    ) = map { it.member }.hookAll(priority) { initiate(this.kotlin) }.kotlin
 
     /**
      * 通过 [KBaseFinder.BaseResult] 直接 Hook 方法、构造方法 (批量)
@@ -779,6 +1029,363 @@ open class KPackageParam internal constructor(wrapper: PackageParamWrapper? = nu
     inline fun Array<String>.findClass(loader: ClassLoader? = appClassLoader, initialize: Boolean = false, initiate: KClassFinder.() -> Unit) =
         findClassGlobal(loader, initialize, initiate)
 
+    /**
+     * 将此构造函数相关内容附加到此查找器
+     *
+     * 将影响[KConstructorFinder.param]
+     *
+     * @param R 返回类型/构造目标类的类型
+     * @param loader 默认使用 [appClassLoader] ，如果使用 [ClassLoader] 将把涉及的类型，转换为指定 [ClassLoader] 中的 [KClass] 并且会擦除泛型
+     * @param isUseMember 是否将构造函数转换为JavaMethod再进行附加 - 即使为false当构造函数附加错误时依然会尝试JavaMethod - 为true时会导致类型擦除
+     */
+    inline fun <R> KConstructorFinder.attach(function: KFunction<R>,loader: ClassLoader? = appClassLoader,isUseMember:Boolean = false) = attachGlobal(function, loader, isUseMember)
+
+    /**
+     * 将此属性相关内容附加到此查找器
+     *
+     * 将影响[KPropertyFinder.name]、[KPropertyFinder.type]
+     *
+     * 多个属性引用使用示例 ↓
+     *
+     * ```kotlin
+     *
+     *  class Main{
+     *      var sub = ""
+     *      companion object{
+     *          var sub = 5
+     *      }
+     *  }
+     *
+     *  attach(Main::sub) // error:不知道附加哪个属性伴生对象情况下优先使用var sub = ""
+     *  attach<Int>(Main::sub) // 将使用返回类型为Int的属性也就是伴生对象中的属性
+     * ```
+     *
+     * @param R 属性类型
+     * @param loader 默认使用 [appClassLoader] ，如果使用 [ClassLoader] 将把涉及的类型，转换为指定 [ClassLoader] 中的 [KClass] 并且会擦除泛型
+     * @param isUseMember 是否将属性转换为JavaField再进行附加 - 即使为false当属性附加错误时依然会尝试JavaField - 为true时会导致类型擦除
+     */
+    inline fun <R> KPropertyFinder.attach(function: KProperty<R>,loader: ClassLoader? = appClassLoader,isUseMember:Boolean = false) = attachGlobal(function, loader, isUseMember)
+
+    /**
+     * 将此属性相关内容附加到此查找器
+     *
+     * 将影响[KPropertyFinder.name]、[KPropertyFinder.type]
+     *
+     * @param R 属性类型
+     * @param loader 默认使用 [appClassLoader] ，如果使用 [ClassLoader] 将把涉及的类型，转换为指定 [ClassLoader] 中的 [KClass] 并且会擦除泛型
+     * @param isUseMember 是否将属性转换为JavaField再进行附加 - 即使为false当属性附加错误时依然会尝试JavaField - 为true时会导致类型擦除
+     */
+    inline fun <R> KPropertyFinder.attachStatic(function: KProperty0<R>,loader: ClassLoader? = appClassLoader, isUseMember:Boolean = false) = attachStaticGlobal(function, loader, isUseMember)
+
+    /**
+     * 将此属性相关内容附加到此查找器
+     *
+     * 将影响[KPropertyFinder.name]、[KPropertyFinder.type]
+     *
+     * @param ExpandThis 拓展类的类型
+     * @param R 属性类型
+     * @param loader 默认使用 [appClassLoader] ，如果使用 [ClassLoader] 将把涉及的类型，转换为指定 [ClassLoader] 中的 [KClass] 并且会擦除泛型
+     * @param isUseMember 是否将属性转换为JavaField再进行附加 - 即使为false当属性附加错误时依然会尝试JavaField - 为true时会导致类型擦除
+     */
+    inline fun <ExpandThis,R> KPropertyFinder.attach(function: KProperty2<*,ExpandThis,R>,loader: ClassLoader? = appClassLoader, isUseMember:Boolean = false) = attachGlobal(function, loader, isUseMember)
+
+    /**
+     * 将此函数相关内容附加到此查找器
+     *
+     * 将影响[KFunctionFinder.name]、[KFunctionFinder.returnType]、[KFunctionFinder.param]
+     *
+     * 重载引用使用示例 ↓
+     *
+     * ```kotlin
+     *
+     *  class Main{
+     *      fun sub(a:Int):Int{}
+     *
+     *      fun sub(c:Double):String{}
+     *  }
+     *
+     *  attach(Main::sub) // error:不知道附加哪个函数
+     *  attach<String>(Main::sub) // 将使用返回类型为String的函数
+     * ```
+     *
+     * @param R 返回类型
+     * @param loader 默认使用 [appClassLoader] ，如果使用 [ClassLoader] 将把涉及的类型，转换为指定 [ClassLoader] 中的 [KClass] 并且会擦除泛型
+     * @param isUseMember 是否将函数转换为JavaMethod再进行附加 - 即使为false当函数附加错误时依然会尝试JavaMethod - 为true时会导致类型擦除
+     */
+    @JvmName("attach_1")
+    fun <R> KFunctionFinder.attach(function:KFunction<R>,loader: ClassLoader? = appClassLoader,isUseMember:Boolean = false) = attachGlobal(function, loader, isUseMember)
+
+    /**
+     * 将此函数相关内容附加到此查找器
+     *
+     * 将影响[KFunctionFinder.name]、[KFunctionFinder.returnType]、[KFunctionFinder.param]
+     *
+     * 重载引用使用示例 ↓
+     *
+     * ```java
+     *
+     *  class Main{
+     *      public static void sub(){}
+     *      public void sub(){}
+     *  }
+     *
+     *  attach(Main::sub) // error:不知道附加哪个函数
+     *  attachStatic(Main::sub) // 将使用静态sub
+     * ```
+     *
+     * @param R 返回类型
+     * @param loader 默认使用 [appClassLoader] ，如果使用 [ClassLoader] 将把涉及的类型，转换为指定 [ClassLoader] 中的 [KClass] 并且会擦除泛型
+     * @param isUseMember 是否将函数转换为JavaMethod再进行附加 - 即使为false当函数附加错误时依然会尝试JavaMethod - 为true时会导致类型擦除
+     */
+    @JvmName("attachStatic_0")
+    inline fun <R> KFunctionFinder.attachStatic(function:KFunction0<R>,loader: ClassLoader? = appClassLoader,isUseMember:Boolean = false) = attachStaticGlobal(function, loader, isUseMember)
+
+    /**
+     * 将此函数相关内容附加到此查找器
+     *
+     * 将影响[KFunctionFinder.name]、[KFunctionFinder.returnType]、[KFunctionFinder.param]
+     *
+     * 重载引用使用示例 ↓
+     *
+     * ```java
+     *
+     *  class Main{
+     *      public void sub(a:Int):String{}
+     *      public void sub():String{}
+     *      public void sub(b:Int):Int{}
+     *  }
+     *
+     *  attach<String>(Main::sub) // error:尽管筛选了返回值但依然不知道附加哪个函数
+     *  attachEmptyParam(Main::sub) // 将使用没有参数sub
+     * ```
+     *
+     * @param R 返回类型
+     * @param loader 默认使用 [appClassLoader] ，如果使用 [ClassLoader] 将把涉及的类型，转换为指定 [ClassLoader] 中的 [KClass] 并且会擦除泛型
+     * @param isUseMember 是否将函数转换为JavaMethod再进行附加 - 即使为false当函数附加错误时依然会尝试JavaMethod - 为true时会导致类型擦除
+     */
+    inline fun <R> KFunctionFinder.attachEmptyParam(function:KFunction1<*,R>,loader: ClassLoader? = appClassLoader,isUseMember:Boolean = false) = attachEmptyParamGlobal(function, loader, isUseMember)
+
+    /**
+     * 将此函数相关内容附加到此查找器 - 指定参数的快捷方法 参阅:[attach]
+     *
+     * 将影响[KFunctionFinder.name]、[KFunctionFinder.returnType]、[KFunctionFinder.param]
+     *
+     * 重载引用使用示例 ↓
+     *
+     * ```kotlin
+     *
+     *  class Main{
+     *      fun sub(a:Int):Int{}
+     *
+     *      fun sub(c:Double):Int{}
+     *  }
+     *
+     *  attach(Main::sub) // error:不知道附加哪个函数
+     *  attach<Double,Int>(Main::sub) // 将使用第一个参数为Double返回类型为Int的函数
+     * ```
+     *
+     * @param P1 第一个参数的类型
+     * @param R 返回类型
+     * @param loader 默认使用 [appClassLoader] ，如果使用 [ClassLoader] 将把涉及的类型，转换为指定 [ClassLoader] 中的 [KClass] 并且会擦除泛型
+     * @param isUseMember 是否将函数转换为JavaMethod再进行附加 - 即使为false当函数附加错误时依然会尝试JavaMethod - 为true时会导致类型擦除
+     */
+    @JvmName("attach_2")
+    inline fun <P1, R> KFunctionFinder.attach(function:KFunction2<*,P1, R>,loader: ClassLoader? = appClassLoader,isUseMember:Boolean = false) = attachGlobal(function, loader, isUseMember)
+
+    /**
+     * 将此函数相关内容附加到此查找器 - 指定参数的快捷方法 参阅:[attach]
+     *
+     * 将影响[KFunctionFinder.name]、[KFunctionFinder.returnType]、[KFunctionFinder.param]
+     *
+     * 重载引用参考[KFunctionFinder.attach]
+     *
+     * @param P1 第一个参数的类型
+     * @param P2 第二个参数的类型
+     * @param R 返回类型
+     * @param loader 默认使用 [appClassLoader] ，如果使用 [ClassLoader] 将把涉及的类型，转换为指定 [ClassLoader] 中的 [KClass] 并且会擦除泛型
+     * @param isUseMember 是否将函数转换为JavaMethod再进行附加 - 即使为false当函数附加错误时依然会尝试JavaMethod - 为true时会导致类型擦除
+     */
+    @JvmName("attach_3")
+    inline fun <P1,P2,R> KFunctionFinder.attach(function:KFunction3<*,P1,P2,R>,loader: ClassLoader? = appClassLoader,isUseMember:Boolean = false) = attachGlobal(function, loader, isUseMember)
+
+    /**
+     * 将此构造函数相关内容附加到此查找器
+     *
+     * 将影响[ConstructorFinder.param]
+     *
+     * @param R 返回类型/构造目标类的类型
+     * @param loader [ClassLoader] 装载实例 - 默认空 - 不填使用 [appClassLoader]
+     * @param isUseMember 是否将构造函数转换为JavaMethod再进行附加 - 即使为false当构造函数附加错误时依然会尝试JavaMethod - 为true时会导致类型擦除
+     */
+    inline fun <R> ConstructorFinder.attach(function: KFunction<R>, loader: ClassLoader? = appClassLoader, isUseMember:Boolean = false) = attachGlobal(function, loader, isUseMember)
+
+    /**
+     * 将此函数相关内容附加到此查找器
+     *
+     * 将影响[MethodFinder.name]、[MethodFinder.returnType]、[MethodFinder.param]
+     *
+     * 重载引用使用示例 ↓
+     *
+     * ```kotlin
+     *
+     *  class Main{
+     *      fun sub(a:Int):Int{}
+     *
+     *      fun sub(c:Double):String{}
+     *  }
+     *
+     *  attach(Main::sub) // error:不知道附加哪个函数
+     *  attach<String>(Main::sub) // 将使用返回类型为String的函数
+     * ```
+     *
+     * @param R 返回类型
+     * @param loader [ClassLoader] 装载实例 - 默认空 - 不填使用 [appClassLoader]
+     * @param isUseMember 是否将函数转换为JavaMethod再进行附加 - 即使为false当函数附加错误时依然会尝试JavaMethod - 为true时会导致类型擦除
+     */
+    @JvmName("attach_1")
+    inline fun <R> MethodFinder.attach(function:KFunction<R>,loader: ClassLoader? = appClassLoader,isUseMember:Boolean = false) = attachGlobal(function,loader, isUseMember)
+
+    /**
+     * 将此函数相关内容附加到此查找器
+     *
+     * 将影响[MethodFinder.name]、[MethodFinder.returnType]、[MethodFinder.param]
+     *
+     * 重载引用使用示例 ↓
+     *
+     * ```java
+     *
+     *  class Main{
+     *      public static void sub(){}
+     *      public void sub(){}
+     *  }
+     *
+     *  attach(Main::sub) // error:不知道附加哪个函数
+     *  attachStatic(Main::sub) // 将使用静态sub
+     * ```
+     *
+     * @param R 返回类型
+     * @param loader [ClassLoader] 装载实例 - 默认空 - 不填使用 [appClassLoader]
+     * @param isUseMember 是否将函数转换为JavaMethod再进行附加 - 即使为false当函数附加错误时依然会尝试JavaMethod - 为true时会导致类型擦除
+     */
+    @JvmName("attachStatic_0")
+    inline fun <R> MethodFinder.attachStatic(function: KFunction0<R>, loader: ClassLoader? = appClassLoader, isUseMember:Boolean = false) = attachStaticGlobal(function, loader, isUseMember)
+
+    /**
+     * 将此函数相关内容附加到此查找器
+     *
+     * 将影响[MethodFinder.name]、[MethodFinder.returnType]、[MethodFinder.param]
+     *
+     * 重载引用使用示例 ↓
+     *
+     * ```java
+     *
+     *  class Main{
+     *      public void sub(a:Int):String{}
+     *      public void sub():String{}
+     *      public void sub(b:Int):Int{}
+     *  }
+     *
+     *  attach<String>(Main::sub) // error:尽管筛选了返回值但依然不知道附加哪个函数
+     *  attachEmptyParam(Main::sub) // 将使用没有参数sub
+     * ```
+     *
+     * @param R 返回类型
+     * @param loader [ClassLoader] 装载实例 - 默认空 - 不填使用 [appClassLoader]
+     * @param isUseMember 是否将函数转换为JavaMethod再进行附加 - 即使为false当函数附加错误时依然会尝试JavaMethod - 为true时会导致类型擦除
+     */
+    inline fun <R> MethodFinder.attachEmptyParam(function: KFunction1<*, R>, loader: ClassLoader? = appClassLoader, isUseMember:Boolean = false) = attachEmptyParamGlobal(function, loader, isUseMember)
+
+    /**
+     * 将此函数相关内容附加到此查找器 - 指定参数的快捷方法 参阅:[attach]
+     *
+     * 将影响[MethodFinder.name]、[MethodFinder.returnType]、[MethodFinder.param]
+     *
+     * 重载引用使用示例 ↓
+     *
+     * ```kotlin
+     *
+     *  class Main{
+     *      fun sub(a:Int):Int{}
+     *
+     *      fun sub(c:Double):Int{}
+     *  }
+     *
+     *  attach(Main::sub) // error:不知道附加哪个函数
+     *  attach<Double,Int>(Main::sub) // 将使用第一个参数为Double返回类型为Int的函数
+     * ```
+     *
+     * @param P1 第一个参数的类型
+     * @param R 返回类型
+     * @param loader [ClassLoader] 装载实例 - 默认空 - 不填使用 [appClassLoader]
+     * @param isUseMember 是否将函数转换为JavaMethod再进行附加 - 即使为false当函数附加错误时依然会尝试JavaMethod - 为true时会导致类型擦除
+     */
+    @JvmName("attach_2")
+    inline fun <P1, R> MethodFinder.attach(function: KFunction2<*, P1, R>, loader: ClassLoader? = appClassLoader, isUseMember:Boolean = false) = attachGlobal(function, loader, isUseMember)
+
+    /**
+     * 将此函数相关内容附加到此查找器 - 指定参数的快捷方法 参阅:[attach]
+     *
+     * 将影响[MethodFinder.name]、[MethodFinder.returnType]、[MethodFinder.param]
+     *
+     * 重载引用参考[MethodFinder.attach]
+     *
+     * @param P1 第一个参数的类型
+     * @param P2 第二个参数的类型
+     * @param R 返回类型
+     * @param loader [ClassLoader] 装载实例 - 默认空 - 不填使用 [appClassLoader]
+     * @param isUseMember 是否将函数转换为JavaMethod再进行附加 - 即使为false当函数附加错误时依然会尝试JavaMethod - 为true时会导致类型擦除
+     */
+    @JvmName("attach_3")
+    inline fun <P1,P2,R> MethodFinder.attach(function: KFunction3<*, P1, P2, R>, loader: ClassLoader? = appClassLoader, isUseMember:Boolean = false) = attachGlobal(function, loader, isUseMember)
+
+    /**
+     * 将此属性相关内容附加到此查找器
+     *
+     * 将影响[FieldFinder.name]、[FieldFinder.type]
+     *
+     * 多个属性引用使用示例 ↓
+     *
+     * ```kotlin
+     *
+     *  class Main{
+     *      var sub = ""
+     *      companion object{
+     *          var sub = 5
+     *      }
+     *  }
+     *
+     *  attach(Main::sub) // error:不知道附加哪个属性伴生对象情况下优先使用var sub = ""
+     *  attach<Int>(Main::sub) // 将使用返回类型为Int的属性也就是伴生对象中的属性
+     * ```
+     *
+     * @param R 属性类型
+     * @param loader [ClassLoader] 装载实例 - 默认空 - 不填使用 [appClassLoader]
+     * @param isUseMember 是否将属性转换为JavaField再进行附加 - 即使为false当属性附加错误时依然会尝试JavaField - 为true时会导致类型擦除
+     */
+    inline fun <R> FieldFinder.attach(function: KProperty<R>, loader: ClassLoader? = appClassLoader, isUseMember:Boolean = false) = attachGlobal(function, loader, isUseMember)
+
+    /**
+     * 将此属性相关内容附加到此查找器
+     *
+     * 将影响[FieldFinder.name]、[FieldFinder.type]
+     *
+     * @param R 属性类型
+     * @param loader [ClassLoader] 装载实例 - 默认空 - 不填使用 [appClassLoader]
+     * @param isUseMember 是否将属性转换为JavaField再进行附加 - 即使为false当属性附加错误时依然会尝试JavaField - 为true时会导致类型擦除
+     */
+    inline fun <R> FieldFinder.attachStatic(function: KProperty0<R>, loader: ClassLoader? = appClassLoader, isUseMember:Boolean = false) = attachStaticGlobal(function, loader, isUseMember)
+
+    /**
+     * 将此属性相关内容附加到此查找器
+     *
+     * 将影响[FieldFinder.name]、[FieldFinder.type]
+     *
+     * @param ExpandThis 拓展类的类型
+     * @param R 属性类型
+     * @param loader [ClassLoader] 装载实例 - 默认空 - 不填使用 [appClassLoader]
+     * @param isUseMember 是否将属性转换为JavaField再进行附加 - 即使为false当属性附加错误时依然会尝试JavaField - 为true时会导致类型擦除
+     */
+    inline fun <ExpandThis,R> FieldFinder.attach(function: KProperty2<*, ExpandThis, R>, loader: ClassLoader? = appClassLoader, isUseMember:Boolean = false) = attachGlobal(function, loader, isUseMember)
 
     /**
      * 快速Hook App 一般使用的模板

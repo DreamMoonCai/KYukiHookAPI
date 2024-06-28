@@ -43,9 +43,9 @@ android {
 dependencies {
     implementation(androidx.core.core.ktx)
     implementation(androidx.appcompat.appcompat)
-    implementation(org.jetbrains.kotlin.kotlin.reflect)
-    implementation(io.github.dreammooncai.yukireflection.api.kotlin)
-    compileOnly(com.highcapable.yukihookapi.api)
+    api(org.jetbrains.kotlin.kotlin.reflect)
+    api(com.highcapable.yukihookapi.api)
+    api(io.github.dreammooncai.yukireflection.api.kotlin)
 }
 
 mavenPublishing {

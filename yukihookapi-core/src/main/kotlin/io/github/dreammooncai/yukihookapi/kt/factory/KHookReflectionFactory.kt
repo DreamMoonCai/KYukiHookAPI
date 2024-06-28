@@ -36,9 +36,19 @@ val PackageParam.kotlin get() = KPackageParam(this)
 val YukiMemberHookCreator.MemberHookCreator.kotlin get() = KCallableHookCreator(this)
 
 /**
+ * 将 Kotlin 拓展式 [KCallableHookCreator] 转换为 原版 [YukiMemberHookCreator.MemberHookCreator]
+ */
+val KCallableHookCreator.yuki get() = impl
+
+/**
  * 将原版 [HookParam] 转换为 Kotlin 拓展式 [KHookParam]
  */
 val HookParam.kotlin get() = KHookParam.create(this)
+
+/**
+ * 将 Kotlin 拓展式 [KHookParam] 转换为 原版 [HookParam]
+ */
+val KHookParam.yuki get() = impl
 
 /**
  * 将原版 [YukiMemberHookCreator.MemberHookCreator.Result] 转换为 Kotlin 拓展式 [KCallableHookCreator.Result]
@@ -46,13 +56,16 @@ val HookParam.kotlin get() = KHookParam.create(this)
 val YukiMemberHookCreator.MemberHookCreator.Result.kotlin get() = KCallableHookCreator.Result(this)
 
 /**
+ * 将 Kotlin 拓展式 [KCallableHookCreator.Result] 转换为 原版 [YukiMemberHookCreator.MemberHookCreator.Result]
+ */
+val KCallableHookCreator.Result.yuki get() = impl
+
+/**
  * 将 Kotlin 拓展式 [KYukiBaseHooker] 转换为 原版 [YukiBaseHooker]
  */
-val KYukiBaseHooker.yuki:YukiBaseHooker get() {
-    return object : YukiBaseHooker() {
-        override fun onHook() {
-            this@yuki.assignInstance(this.kotlin)
-        }
+val KYukiBaseHooker.yuki:YukiBaseHooker get() = object : YukiBaseHooker() {
+    override fun onHook() {
+        this@yuki.assignInstance(this.kotlin)
     }
 }
 

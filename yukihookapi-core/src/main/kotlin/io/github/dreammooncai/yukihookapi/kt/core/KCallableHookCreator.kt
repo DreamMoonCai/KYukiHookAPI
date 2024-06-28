@@ -19,7 +19,7 @@ import kotlin.reflect.*
  *
  * @property impl 依据实现的源实例
  */
-class KCallableHookCreator internal constructor(private val impl: MemberHookCreator) {
+class KCallableHookCreator internal constructor(internal val impl: MemberHookCreator) {
     /**
      * 在 [KCallable] 执行完成前 Hook
      *
@@ -142,7 +142,7 @@ class KCallableHookCreator internal constructor(private val impl: MemberHookCrea
      *
      * @property impl 依据实现的源实例
      */
-    class Result internal constructor(private val impl: MemberResult) {
+    class Result internal constructor(internal val impl: MemberResult) {
 
         /**
          * 创建监听事件方法体

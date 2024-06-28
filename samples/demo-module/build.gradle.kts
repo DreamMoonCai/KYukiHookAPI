@@ -45,8 +45,6 @@ android {
 dependencies {
     compileOnly(de.robv.android.xposed.api)
     implementation(projects.yukihookapiCore)
-    implementation(io.github.dreammooncai.yukireflection.api.kotlin)
-    implementation(com.highcapable.yukihookapi.api)
     ksp(com.highcapable.yukihookapi.ksp.xposed)
     implementation(androidx.preference.preference.ktx)
     implementation(androidx.core.core.ktx)

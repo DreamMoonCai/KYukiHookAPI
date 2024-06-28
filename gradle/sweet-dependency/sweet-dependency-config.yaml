@@ -46,7 +46,7 @@ plugins:
 libraries:
   io.github.dreammooncai.yukireflection:
     api-kotlin:
-      version: 1.0.1
+      version: 1.0.2
   com.highcapable.yukihookapi:
     api:
       version: 1.2.1
