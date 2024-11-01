@@ -29,27 +29,13 @@ import com.highcapable.yukihookapi.hook.core.finder.base.BaseFinder
 import com.highcapable.yukihookapi.hook.core.finder.members.ConstructorFinder
 import com.highcapable.yukihookapi.hook.core.finder.members.FieldFinder
 import com.highcapable.yukihookapi.hook.core.finder.members.MethodFinder
+import com.highcapable.yukihookapi.hook.log.YLog
 import com.highcapable.yukihookapi.hook.param.PackageParam
 import com.highcapable.yukihookapi.hook.param.wrapper.PackageParamWrapper
+import io.github.dreammooncai.yukihookapi.kt.factory.KClassLoaderFactory
 import io.github.dreammooncai.yukihookapi.kt.factory.attach
-import io.github.dreammooncai.yukihookapi.kt.factory.attachEmptyParam
-import io.github.dreammooncai.yukihookapi.kt.factory.attachStatic
 import io.github.dreammooncai.yukireflection.bean.KVariousClass
-import io.github.dreammooncai.yukireflection.factory.allFunctionSignatures
-import io.github.dreammooncai.yukireflection.factory.allPropertySignatures
 import io.github.dreammooncai.yukireflection.factory.attach
-import io.github.dreammooncai.yukireflection.factory.functionSignature
-import io.github.dreammooncai.yukireflection.factory.hasFunctionSignature
-import io.github.dreammooncai.yukireflection.factory.hasKClass
-import io.github.dreammooncai.yukireflection.factory.hasPropertySignature
-import io.github.dreammooncai.yukireflection.factory.propertySignature
-import io.github.dreammooncai.yukireflection.factory.toKCallable
-import io.github.dreammooncai.yukireflection.factory.toKClass
-import io.github.dreammooncai.yukireflection.factory.toKClassOrNull
-import io.github.dreammooncai.yukireflection.factory.toKFunction
-import io.github.dreammooncai.yukireflection.factory.toKFunctionOrNull
-import io.github.dreammooncai.yukireflection.factory.toKProperty
-import io.github.dreammooncai.yukireflection.factory.toKPropertyOrNull
 import io.github.dreammooncai.yukireflection.finder.signature.KFunctionSignatureFinder
 import io.github.dreammooncai.yukireflection.finder.signature.KPropertySignatureFinder
 import io.github.dreammooncai.yukireflection.finder.signature.support.KFunctionSignatureSupport
@@ -58,16 +44,12 @@ import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
-import io.github.dreammooncai.yukireflection.finder.tools.KReflectionTool
 import kotlin.reflect.KFunction0
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KFunction2
 import kotlin.reflect.KFunction3
 import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty2
-import kotlin.reflect.full.valueParameters
-import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf
-import kotlin.reflect.jvm.internal.impl.metadata.jvm.JvmProtoBuf
 
 import io.github.dreammooncai.yukireflection.factory.toKClass as toKClassGlobal
 import io.github.dreammooncai.yukireflection.factory.toKClassOrNull as toKClassGlobalOrNull
@@ -175,6 +157,52 @@ open class KPackageParam internal constructor(wrapper: PackageParamWrapper? = nu
          *     Public-API inline function cannot access non-public-API 'private xx xx x: Member defined in xx.xxx.A'
          */
         const val NON_PUBLIC_CALL_FROM_PUBLIC_INLINE = "NON_PUBLIC_CALL_FROM_PUBLIC_INLINE"
+    }
+
+    private class KPackageClassLoader(private val firstClassLoader:ClassLoader):ClassLoader(){
+        @Synchronized
+        override fun loadClass(name: String): Class<*> {
+            fun repeatLoadClass(repeatFind: ClassLoader?): Class<*>? {
+                val repeat = KClassLoaderFactory.getRepeat(repeatFind,this)
+                return if (repeat != null) {
+                    try {
+                        KClassLoaderFactory.removeClassLoader(repeat, this)
+                        repeatFind?.loadClass(name)
+                    } catch (e: ClassNotFoundException) {
+                        null
+                    } finally {
+                        KClassLoaderFactory.insertClassLoader(repeat, this)
+                    }
+                } else {
+                    try {
+                        repeatFind?.loadClass(name)
+                    } catch (e: ClassNotFoundException) {
+                        null
+                    }
+                }
+            }
+
+            return repeatLoadClass(firstClassLoader)
+                ?: repeatLoadClass(this::class.classLoader)
+                ?: KClassLoaderFactory.dynamicClassLoader.firstNotNullOfOrNull { repeatLoadClass(it) }
+                ?: try {
+                    super.loadClass(name)
+                } catch (e: ClassNotFoundException) {
+                    throw e
+                }
+        }
+    }
+
+    private val loader = KPackageClassLoader(appClassLoader?:this::class.classLoader.parent)
+
+    /**
+     * 将当前 [ClassLoader] 附加 [appClassLoader]
+     */
+    fun ClassLoader.attachAppLoader(){
+        if (KClassLoaderFactory.getRepeat(this,loader) != null) return
+        KClassLoaderFactory.insertClassLoader(loader, this.parent)
+        KClassLoaderFactory.insertClassLoader(this, loader)
+        YLog.debug("装载附加AppClassLoader成功")
     }
 
     /**
@@ -828,7 +856,7 @@ open class KPackageParam internal constructor(wrapper: PackageParamWrapper? = nu
      * @param isUseMember 是否使用Java方式反射获取参数名和参数类型 - 默认否
      * @return [KProperty] 新获取到的可调用实例
      */
-    inline fun <K: KProperty<V>,V> K.toKProperty(clazz: KClass<*>? = null, loader: ClassLoader? = appClassLoader, isUseMember: Boolean = false): K = toKPropertyGlobal()
+    inline fun <K: KProperty<V>,V> K.toKProperty(clazz: KClass<*>? = null, loader: ClassLoader? = appClassLoader, isUseMember: Boolean = false): K = toKPropertyGlobal(clazz, loader, isUseMember)
 
     /**
      * 通过 [clazz] 和 [this] 获取其中的 [KProperty]
